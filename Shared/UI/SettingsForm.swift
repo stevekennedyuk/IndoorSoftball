@@ -28,37 +28,14 @@ struct SettingsSections: View {
         }
 
         Section {
-            Stepper(value: $settings.pointsPerBase, in: GameSettings.pointsPerBaseRange) {
-                row("Per base (batter)", settings.pointsPerBase.signedString)
-            }
             Stepper(value: $settings.homeRunPoints, in: GameSettings.homeRunRange) {
-                row("Home run (wall)", settings.homeRunPoints.signedString)
-            }
-            Stepper(value: $settings.runPoints, in: GameSettings.runPointsRange) {
-                row("Runner crosses home", settings.runPoints.signedString)
-            }
-            Stepper(value: $settings.outPoints, in: GameSettings.outRange) {
-                row("Batter / runner out", settings.outPoints.signedString)
-            }
-            Stepper(value: $settings.outAtHomeByCatcherPoints, in: GameSettings.outRange) {
-                row("Out at home by catcher", settings.outAtHomeByCatcherPoints.signedString)
+                row("Home run (HR button)", settings.homeRunPoints.signedString)
             }
         } header: {
             Text("Scoring")
         } footer: {
-            Text(examples)
-        }
-
-        Section("Presets") {
-            Button {
-                settings.applyScoring(from: .indoor)
-            } label: {
-                Label("Indoor rules (1/base, HR 5)", systemImage: "building.2")
-            }
-            Button {
-                settings.applyScoring(from: .outdoorVariant)
-            } label: {
-                Label("Outdoor variant (0/base, HR 4)", systemImage: "sun.max")
+            if !compact {
+                Text("Score with +1 and −1 for each point won or lost, and HR for a home run off the back wall (normally +5 indoors, +4 outdoors).")
             }
         }
     }
@@ -73,12 +50,6 @@ struct SettingsSections: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
         }
-    }
-
-    private var examples: String {
-        let s = settings
-        let p = { (k: ScoreEventKind, r: Int) in ScoringRules.points(for: k, runnersOn: r, settings: s).signedString }
-        return "Single \(p(.firstBase, 0)) · double \(p(.secondBase, 0)) · triple \(p(.thirdBase, 0)) · home on the hit \(p(.homeOnHit, 0)) · home run with bases loaded \(p(.homeRun, 3))"
     }
 }
 

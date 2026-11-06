@@ -1,123 +1,52 @@
 import SwiftUI
 
-/// Big, colour-coded scoring buttons. Each shows the points it will add using
-/// the game's own settings.
+/// Three big scoring buttons: +1, −1 and Home Run (worth the Home Run setting).
 struct ScoringPad: View {
     @Environment(GameStore.self) private var store
     let large: Bool
-    @State private var askRunners = false
 
     var body: some View {
         if let g = store.game {
-            let s = g.settings
-            VStack(alignment: .leading, spacing: 12) {
-                section("Batter reached (off the bat)") {
-                    HStack(spacing: 8) {
-                        pad(.firstBase, s, Theme.positive)
-                        pad(.secondBase, s, Theme.positive)
-                        pad(.thirdBase, s, Theme.positive)
-                        pad(.homeOnHit, s, Theme.positive)
+            let hr = g.settings.homeRunPoints
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    bigButton(title: "+1", subtitle: "Point", symbol: "plus", color: Theme.positive) {
+                        store.record(.adjustPlus)
+                    }
+                    bigButton(title: "−1", subtitle: "Minus", symbol: "minus", color: Theme.negative) {
+                        store.record(.adjustMinus)
                     }
                 }
-                section("Runs") {
-                    HStack(spacing: 8) {
-                        pad(.runnerHome, s, Theme.positive)
-                        Button { askRunners = true } label: {
-                            PadLabel(kind: .homeRun,
-                                     pointsText: "\(s.homeRunPoints.signedString) +\(s.runPoints)/runner",
-                                     color: Theme.warning,
-                                     large: large)
-                        }
-                        .buttonStyle(PadButtonStyle(color: Theme.warning))
+                bigButton(title: "HR  \(hr.signedString)", subtitle: "Home Run", symbol: "star.fill",
+                          color: Theme.warning, height: large ? 110 : 88) {
+                    store.record(.homeRun)
+                }
+                Button { store.undo() } label: {
+                    Label("Undo last", systemImage: "arrow.uturn.backward")
                         .frame(maxWidth: .infinity)
-                        .layoutPriority(1)
-                    }
                 }
-                section("Outs") {
-                    HStack(spacing: 8) {
-                        pad(.batterOut, s, Theme.negative)
-                        pad(.runnerOut, s, Theme.negative)
-                        pad(.outAtHomeByCatcher, s, Theme.negative)
-                    }
-                }
-                HStack(spacing: 8) {
-                    Button { store.undo() } label: {
-                        Label("Undo", systemImage: "arrow.uturn.backward")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(!store.canUndo)
-
-                    Menu {
-                        Button { store.record(.adjustPlus) } label: { Label("Correction +1", systemImage: "plus") }
-                        Button { store.record(.adjustMinus) } label: { Label("Correction −1", systemImage: "minus") }
-                    } label: {
-                        Label("Adjust", systemImage: "plusminus")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .menuStyle(.button)
-                    .buttonStyle(.bordered)
-                }
+                .buttonStyle(.bordered)
                 .controlSize(.large)
-            }
-            .confirmationDialog("Home run – runners on base?", isPresented: $askRunners, titleVisibility: .visible) {
-                ForEach(0...3, id: \.self) { n in
-                    let pts = ScoringRules.points(for: .homeRun, runnersOn: n, settings: s)
-                    Button("\(n == 0 ? "Bases empty" : n == 3 ? "Bases loaded (3)" : "\(n) on base")  \(pts.signedString)") {
-                        store.record(.homeRun, runnersOn: n)
-                    }
-                }
-            } message: {
-                Text("Batter scores \(s.homeRunPoints.signedString), each runner on base \(s.runPoints.signedString).")
+                .disabled(!store.canUndo)
             }
         }
     }
 
-    private func section<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title.uppercased())
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.secondary)
-            content()
-        }
-    }
-
-    private func pad(_ kind: ScoreEventKind, _ s: GameSettings, _ color: Color) -> some View {
-        Button {
-            store.record(kind)
-        } label: {
-            PadLabel(kind: kind,
-                     pointsText: ScoringRules.points(for: kind, settings: s).signedString,
-                     color: color,
-                     large: large)
+    private func bigButton(title: String, subtitle: String, symbol: String, color: Color,
+                           height: CGFloat? = nil, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Text(title)
+                    .font(.system(size: large ? 64 : 52, weight: .heavy, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                Label(subtitle, systemImage: symbol)
+                    .font(large ? .headline : .subheadline.weight(.semibold))
+            }
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity, minHeight: height ?? (large ? 170 : 140))
         }
         .buttonStyle(PadButtonStyle(color: color))
-        .frame(maxWidth: .infinity)
-    }
-}
-
-struct PadLabel: View {
-    let kind: ScoreEventKind
-    let pointsText: String
-    let color: Color
-    let large: Bool
-
-    var body: some View {
-        VStack(spacing: 3) {
-            Image(systemName: kind.symbol)
-                .font(large ? .title2 : .title3)
-            Text(kind.shortLabel)
-                .font(large ? .subheadline.weight(.bold) : .caption.weight(.bold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-            Text(pointsText)
-                .font(large ? .headline.monospacedDigit() : .subheadline.weight(.heavy).monospacedDigit())
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-        }
-        .foregroundStyle(color)
-        .frame(maxWidth: .infinity, minHeight: large ? 96 : 76)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(kind.longLabel), \(pointsText) points")
+        .accessibilityLabel("\(subtitle), \(title)")
     }
 }

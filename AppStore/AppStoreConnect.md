@@ -43,23 +43,21 @@ Upload `Website/indoor-softball/` to the web root so both pages resolve before y
 
 ## Promotional text (170)
 
-Score indoor softball the easy way: big timer per half inning, one-tap points for every base, home runs and outs – on iPhone, iPad and Apple Watch.
+Score indoor softball the easy way: big timer per half inning and three big buttons – +1, −1 and Home Run – on iPhone, iPad and Apple Watch.
 
 ## Description
 
-Indoor Softball Scorer keeps score and time for indoor softball, where half innings are timed and every base counts.
+Indoor Softball Scorer keeps score and time for indoor softball, where half innings are timed and every point counts.
 
 TIMED HALF INNINGS
 • Big, colour-coded countdown: green while running, amber near the end, flashing red at TIME
 • Haptic and sound alerts, plus notifications if the app is in the background
 • After time is up you can still enter the last scores until you start the next half
 
-POINTS SCORING
-• Batter scores per base reached off the bat: 1st +1, 2nd +2, 3rd +3, home +4
-• Runners crossing home score a point each
-• Home run off the back wall +5, plus a point for every runner on base
-• Outs cost points: −1 for a batter or runner out, −2 for an out at home by the catcher
-• Every value can be changed, with an Outdoor preset (0 per base, home run 4)
+SIMPLE SCORING
+• Three big buttons: +1, −1 and HR
+• HR adds a home run off the back wall (+5 by default, adjustable – +4 for the outdoor variant)
+• Plus, Minus and Total tallies for every half inning, right under the buttons
 
 CLEAR RESULTS
 • A plus and minus tally for every half inning; scores can go negative
@@ -80,11 +78,11 @@ softball,indoor,scorer,scoreboard,umpire,timer,innings,points,league,scorekeeper
 ## TestFlight
 
 **Beta App Description**
-Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple Watch. Points per base, home runs off the wall and negative points for outs; each half inning is timed.
+Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple Watch. +1 / −1 / Home Run scoring with plus, minus and total tallies; each half inning is timed.
 
 **What to Test (build 1)**
-- Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, 1 point per base, home run 5, out −1, out at home by the catcher −2.
-- Start the clock and score every kind of play. Check the plus, minus and net tallies.
+- Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, HR +5.
+- Start the clock and score with +1, −1 and HR. Check the Plus, Minus and Total tallies and Undo.
 - Let the clock run out. You should get the red flashing TIME, haptics and a sound, and you should still be able to enter scores until you tap "Start …".
 - Lock the phone while the clock runs and check that the 1-minute and TIME notifications arrive.
 - Finish the game and check the final screen: each inning's tallies, the end-of-inning scores and the winner. A tie stands as a tie.

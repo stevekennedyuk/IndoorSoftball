@@ -55,7 +55,7 @@ struct SettingsScreen: View {
             Section {
                 Button("Reset everything to indoor defaults", role: .destructive) {
                     let names = (store.settings.awayName, store.settings.homeName)
-                    var s = GameSettings.indoor
+                    var s = GameSettings.indoor  // 2 innings, 5:00 halves, HR +5
                     s.awayName = names.0
                     s.homeName = names.1
                     store.settings = s

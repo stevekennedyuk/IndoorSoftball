@@ -2,32 +2,31 @@
 
 Score keeper and half-inning timer for indoor softball — iPhone, iPad and Apple Watch (SwiftUI, iOS 17 / watchOS 10).
 
-## Scoring rules (all configurable in Settings)
+## Scoring
 
-| Event | Default | Notes |
-|---|---|---|
-| Batter reaches 1st / 2nd / 3rd off the bat | +1 / +2 / +3 | `pointsPerBase` × bases (0 = outdoor variant) |
-| Batter home off the hit | +4 | 4 × per-base; if per-base is 0 the batter scores like a run |
-| Runner (already on base) crosses home | +1 | `runPoints` |
-| Home run off the back wall | +5, plus +1 per runner on base | asks 0–3 runners on base; outdoor variant 4 |
-| Batter out / runner out | −1 | `outPoints` |
-| Runner out at home by the catcher | −2 | `outAtHomeByCatcherPoints` |
-| Correction | ±1 | manual fix-ups |
+The scoring screen has three big buttons:
+
+| Button | Points |
+|---|---|
+| **+1** | +1 (each base reached, run scored, etc.) |
+| **−1** | −1 (each out; tap twice for an out at home by the catcher) |
+| **HR** | Home run off the back wall: +5 by default (outdoor variant +4), set in Settings |
+
+Under the buttons are the **Plus**, **Minus** and **Total** tallies for the half being scored. Undo removes the last tap.
 
 * Innings default 2 (Away bats then Home bats = 1 inning); time per half default 5:00 in 30 s steps; warning at 1:00 left.
 * Outs never end a half — only the clock does. When time is up the clock turns red and flashes (with haptics and sound), shows overtime, and **scores can still be entered until the next half is started**.
 * Each half keeps a plus tally and a minus tally; the half's score is their sum and can be negative.
 * Highest total wins, so −5 beats −10. Ties stand – there are no extra innings.
-* Settings carry forward to every new game until changed. A game in progress keeps the settings it started with.
-* Presets: "Indoor rules" (1/base, HR 5) and "Outdoor variant" (0/base, HR 4).
+* Settings (innings, time per half, warning time, HR value) carry forward to every new game until changed. A game in progress keeps the settings it started with.
 
 ## Screens
 
-**iPhone / iPad** — Game tab (scoreboard with AT BAT highlight, big colour-coded clock, half tally, scoring pad, entry log, line score, pinned "Start next half / End Game" button), History (all finished games, share as text), Settings. On iPad the scoreboard and clock sit beside the scoring pad.
+**iPhone / iPad** — Game tab (scoreboard with AT BAT highlight, big colour-coded clock, Plus / Minus / Total tallies, +1 / −1 / HR buttons, line score, pinned "Start next half / End Game" button), History (all finished games, share as text), Settings. On iPad the scoreboard and clock sit beside the scoring pad.
 
-**Watch** — vertical pages: Clock (with mini scoreboard) → Scoring pad → Tallies/line score → Controls (next half, ±30 s, corrections, settings, end/discard).
+**Watch** — vertical pages: Clock (with mini scoreboard) → +1 / −1 / HR with tallies → Tallies/line score → Controls (next half, ±30 s, corrections, settings, end/discard).
 
-The end-of-game summary shows final scores, the winner, the line score, and for each inning each half's + / − / net with the score at the end of the inning; tap a half to see its individual entries.
+The end-of-game summary shows final scores, the winner, the line score, and for each inning each half's + / − / net with the score at the end of the inning.
 
 ## Sync
 

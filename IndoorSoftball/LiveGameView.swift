@@ -25,9 +25,8 @@ struct LiveGameView: View {
                     }
                     ScrollView {
                         VStack(spacing: 16) {
-                            HalfTallyBar()
+                            HalfTallyBar(large: true)
                             ScoringPad(large: true)
-                            EventLog()
                         }
                         .padding([.trailing, .vertical])
                     }
@@ -38,9 +37,8 @@ struct LiveGameView: View {
                     VStack(spacing: 14) {
                         ScoreHeader(large: false)
                         ClockCard(large: false)
-                        HalfTallyBar()
+                        HalfTallyBar(large: false)
                         ScoringPad(large: false)
-                        EventLog()
                         lineScoreCard
                     }
                     .padding(.horizontal)
@@ -234,80 +232,43 @@ struct ClockCard: View {
 
 // MARK: - Half tally
 
+/// Plus, Minus and Total for the half being scored.
 struct HalfTallyBar: View {
     @Environment(GameStore.self) private var store
+    let large: Bool
 
     var body: some View {
         if let g = store.game {
             let h = g.current
-            HStack(spacing: 0) {
-                stat("This half", h.label, .primary)
-                Divider().frame(height: 34)
-                stat("Plus", "+\(h.positive)", Theme.positive)
-                Divider().frame(height: 34)
-                stat("Minus", h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
-                Divider().frame(height: 34)
-                stat("Net", h.net.scoreString, Theme.pointsColor(h.net))
+            VStack(spacing: 6) {
+                Text("\(h.label) – \(g.name(h.battingTeam)) batting")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Theme.color(h.battingTeam))
+                HStack(spacing: 8) {
+                    stat("PLUS", "+\(h.positive)", Theme.positive)
+                    stat("MINUS", h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
+                    stat("TOTAL", h.net.scoreString, Theme.pointsColor(h.net), emphasised: true)
+                }
             }
-            .padding(.vertical, 10)
-            .background(RoundedRectangle(cornerRadius: 14).fill(Theme.card))
         }
     }
 
-    private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(title).font(.caption2).foregroundStyle(.secondary)
+    private func stat(_ title: String, _ value: String, _ color: Color, emphasised: Bool = false) -> some View {
+        VStack(spacing: 0) {
+            Text(title).font(.caption2.weight(.heavy)).foregroundStyle(.secondary)
             Text(value)
-                .font(.title3.weight(.bold))
+                .font(.system(size: large ? 48 : 38, weight: .heavy, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(color)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.5)
+                .contentTransition(.numericText())
+                .animation(.snappy, value: value)
         }
         .frame(maxWidth: .infinity)
-    }
-}
-
-// MARK: - Event log
-
-struct EventLog: View {
-    @Environment(GameStore.self) private var store
-
-    var body: some View {
-        if let g = store.game, !g.current.events.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("\(g.current.label) entries").font(.subheadline.weight(.semibold))
-                    Spacer()
-                    Text("Hold an entry to remove it").font(.caption2).foregroundStyle(.secondary)
-                }
-                ForEach(g.current.events.reversed()) { e in
-                    HStack {
-                        Image(systemName: e.kind.symbol)
-                            .foregroundStyle(Theme.pointsColor(e.points))
-                            .frame(width: 22)
-                        Text(e.description)
-                        Spacer()
-                        Text(e.points.signedString)
-                            .fontWeight(.bold)
-                            .monospacedDigit()
-                            .foregroundStyle(Theme.pointsColor(e.points))
-                    }
-                    .font(.subheadline)
-                    .padding(.vertical, 4)
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            store.deleteEvent(id: e.id)
-                        } label: {
-                            Label("Remove entry", systemImage: "trash")
-                        }
-                    }
-                }
-            }
-            .padding()
-            .background(RoundedRectangle(cornerRadius: 16).fill(Theme.card))
-        }
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 14).fill(emphasised ? Theme.cardRaised : Theme.card))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(color.opacity(emphasised ? 0.6 : 0.25), lineWidth: emphasised ? 2 : 1))
     }
 }
 

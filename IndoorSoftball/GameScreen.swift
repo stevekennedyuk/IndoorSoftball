@@ -38,7 +38,7 @@ private struct StartView: View {
                     .padding(.top, 40)
                 Text("Indoor Softball")
                     .font(.largeTitle.weight(.heavy))
-                Text("Timed half innings · points per base · negative scores count")
+                Text("Timed half innings · +1 / −1 / HR scoring · negative scores count")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -47,11 +47,7 @@ private struct StartView: View {
                     let s = store.settings
                     summaryRow("Innings", "\(s.innings)")
                     summaryRow("Time per half", Theme.duration(s.halfInningSeconds))
-                    summaryRow("Per base", s.pointsPerBase.signedString)
                     summaryRow("Home run", s.homeRunPoints.signedString)
-                    summaryRow("Runner home", s.runPoints.signedString)
-                    summaryRow("Out", s.outPoints.signedString)
-                    summaryRow("Out at home (catcher)", s.outAtHomeByCatcherPoints.signedString)
                 }
                 .padding()
                 .background(RoundedRectangle(cornerRadius: 16).fill(Theme.card))

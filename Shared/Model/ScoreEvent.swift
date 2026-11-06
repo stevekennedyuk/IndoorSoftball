@@ -39,12 +39,12 @@ enum ScoreEventKind: String, Codable, CaseIterable, Sendable {
         case .thirdBase: "Batter to 3rd"
         case .homeOnHit: "Batter home off the hit"
         case .runnerHome: "Runner crossed home"
-        case .homeRun: "Home run off the wall"
+        case .homeRun: "Home run"
         case .batterOut: "Batter out"
         case .runnerOut: "Runner out"
         case .outAtHomeByCatcher: "Runner out at home by catcher"
-        case .adjustPlus: "Correction +1"
-        case .adjustMinus: "Correction −1"
+        case .adjustPlus: "+1 point"
+        case .adjustMinus: "−1 point"
         }
     }
 

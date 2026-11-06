@@ -178,90 +178,63 @@ struct WatchClockPage: View {
 
 struct WatchScorePage: View {
     @Environment(GameStore.self) private var store
-    @State private var askRunners = false
-
-    private let columns = [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)]
 
     var body: some View {
         if let g = store.game {
-            let s = g.settings
             let h = g.current
-            ScrollView {
-                VStack(spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(h.shortLabel).foregroundStyle(Theme.color(h.battingTeam))
-                        Text("+\(h.positive)").foregroundStyle(Theme.positive)
-                        Text(h.negative == 0 ? "−0" : h.negative.signedString).foregroundStyle(Theme.negative)
-                        Text("= \(h.net.scoreString)").fontWeight(.bold)
+            VStack(spacing: 4) {
+                HStack(spacing: 4) {
+                    tally("+\(h.positive)", Theme.positive)
+                    tally(h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
+                    tally(h.net.scoreString, Theme.pointsColor(h.net), boxed: true)
+                }
+                if store.clockStatus() == .timeUp {
+                    Text("TIME – still scoring \(h.shortLabel)")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Theme.negative)
+                }
+                HStack(spacing: 4) {
+                    big("+1", Theme.positive) { store.record(.adjustPlus) }
+                    big("−1", Theme.negative) { store.record(.adjustMinus) }
+                }
+                HStack(spacing: 4) {
+                    big("HR \(g.settings.homeRunPoints.signedString)", Theme.warning, size: 22) { store.record(.homeRun) }
+                    Button { store.undo() } label: {
+                        Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 18, weight: .bold))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .font(.caption.monospacedDigit())
-                    if store.clockStatus() == .timeUp {
-                        Text("TIME – still scoring \(h.label)")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(Theme.negative)
-                    }
-                    LazyVGrid(columns: columns, spacing: 4) {
-                        pad(.firstBase, s, Theme.positive)
-                        pad(.secondBase, s, Theme.positive)
-                        pad(.thirdBase, s, Theme.positive)
-                        pad(.homeOnHit, s, Theme.positive)
-                        pad(.runnerHome, s, Theme.positive)
-                        Button { askRunners = true } label: {
-                            watchLabel("HR", s.homeRunPoints.signedString + "+", Theme.warning)
-                        }
-                        .buttonStyle(PadButtonStyle(color: Theme.warning))
-                        pad(.batterOut, s, Theme.negative, title: "Out B")
-                        pad(.runnerOut, s, Theme.negative, title: "Out R")
-                        pad(.outAtHomeByCatcher, s, Theme.negative, title: "Out@H")
-                        Button { store.undo() } label: {
-                            watchLabel("Undo", "↩︎", .secondary)
-                        }
-                        .buttonStyle(PadButtonStyle(color: .gray))
-                        .disabled(!store.canUndo)
-                    }
+                    .buttonStyle(PadButtonStyle(color: .gray))
+                    .frame(width: 44)
+                    .disabled(!store.canUndo)
+                    .accessibilityLabel("Undo last")
                 }
             }
-            .sheet(isPresented: $askRunners) {
-                ScrollView {
-                    VStack(spacing: 6) {
-                        Text("Runners on base?").font(.headline)
-                        ForEach(0...3, id: \.self) { n in
-                            Button {
-                                store.record(.homeRun, runnersOn: n)
-                                askRunners = false
-                            } label: {
-                                HStack {
-                                    Text(n == 0 ? "None" : "\(n)")
-                                    Spacer()
-                                    Text(ScoringRules.points(for: .homeRun, runnersOn: n, settings: s).signedString)
-                                        .fontWeight(.bold)
-                                }
-                            }
-                            .tint(Theme.warning)
-                        }
-                    }
-                }
-            }
+            .padding(.horizontal, 2)
         }
     }
 
-    private func pad(_ kind: ScoreEventKind, _ s: GameSettings, _ color: Color, title: String? = nil) -> some View {
-        Button {
-            store.record(kind)
-        } label: {
-            watchLabel(title ?? kind.shortLabel, ScoringRules.points(for: kind, settings: s).signedString, color)
+    private func tally(_ value: String, _ color: Color, boxed: Bool = false) -> some View {
+        Text(value)
+            .font(.system(size: 17, weight: .heavy, design: .rounded).monospacedDigit())
+            .foregroundStyle(color)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 2)
+            .background(RoundedRectangle(cornerRadius: 6).fill(boxed ? Color.white.opacity(0.12) : Color.clear))
+    }
+
+    private func big(_ title: String, _ color: Color, size: CGFloat = 34, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: size, weight: .heavy, design: .rounded))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .foregroundStyle(color)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .buttonStyle(PadButtonStyle(color: color))
-        .accessibilityLabel(kind.longLabel)
-    }
-
-    private func watchLabel(_ title: String, _ pts: String, _ color: Color) -> some View {
-        VStack(spacing: 0) {
-            Text(title).font(.system(size: 13, weight: .bold)).lineLimit(1).minimumScaleFactor(0.6)
-            Text(pts).font(.system(size: 15, weight: .heavy).monospacedDigit())
-        }
-        .foregroundStyle(color)
-        .frame(maxWidth: .infinity, minHeight: 40)
     }
 }
 
@@ -300,12 +273,6 @@ struct WatchControlsPage: View {
                     Button("+30s") { store.addTime(30) }
                         .buttonStyle(.bordered)
                 }
-                Button {
-                    store.record(.adjustPlus)
-                } label: { Label("Correction +1", systemImage: "plus") }
-                Button {
-                    store.record(.adjustMinus)
-                } label: { Label("Correction −1", systemImage: "minus") }
                 NavigationLink {
                     WatchSettingsView()
                 } label: {
