@@ -22,7 +22,7 @@ Under the buttons are the **Plus**, **Minus** and **Total** tallies for the half
 
 ## Screens
 
-**iPhone / iPad** — Game tab (scoreboard with AT BAT highlight, big colour-coded clock, Plus / Minus / Total tallies, +1 / −1 / HR buttons, line score, pinned "Start next half / End Game" button), History (all finished games, share as text), Settings. On iPad the scoreboard and clock sit beside the scoring pad.
+**iPhone / iPad** — Game tab, laid out to fit without scrolling: scoreboard with AT BAT highlight, big colour-coded clock, Plus / Minus / Total tallies, and +1 / −1 / HR buttons that fill the rest of the screen. When time is up, the clock's main button becomes **Start Bottom 1** (or **End Game**); ending a half early is in the ⋯ menu, and the Scores button shows the tallies so far. iPad and iPhone landscape use two columns. Also History (finished games, share as text) and Settings.
 
 **Watch** — vertical pages: Clock (with mini scoreboard) → +1 / −1 / HR with tallies → Tallies/line score → Controls (next half, ±30 s, corrections, settings, end/discard).
 

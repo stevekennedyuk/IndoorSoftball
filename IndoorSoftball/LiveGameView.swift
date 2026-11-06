@@ -1,65 +1,72 @@
 import SwiftUI
 
-/// Live scoring. iPhone: one scrolling column. iPad (regular width): scoreboard
-/// and clock on the left, scoring pad on the right. A large "next half" button
-/// is always pinned to the bottom.
+/// Live scoring, laid out to fit the screen without scrolling.
+/// - iPhone portrait: scoreboard, clock, tallies, then the +1 / −1 / HR buttons,
+///   which stretch to fill the remaining height.
+/// - iPad, or iPhone landscape: scoreboard + clock (+ line score on iPad) on the
+///   left, tallies + buttons on the right.
+/// Moving to the next half is done from the clock: once time is up its main
+/// button becomes "Start Bottom 1" (or "End Game"). Ending a half early is in
+/// the ⋯ menu.
 struct LiveGameView: View {
     @Environment(GameStore.self) private var store
     @Environment(\.horizontalSizeClass) private var hSize
+    @Environment(\.verticalSizeClass) private var vSize
     let newGame: () -> Void
 
+    @State private var confirmEndHalf = false
     @State private var confirmEndGame = false
     @State private var confirmDiscard = false
+    @State private var showScores = false
+
+    private var isPad: Bool { hSize == .regular && vSize == .regular }
+    private var twoColumns: Bool { hSize == .regular || vSize == .compact }
 
     var body: some View {
         Group {
-            if hSize == .regular {
-                HStack(alignment: .top, spacing: 20) {
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            ScoreHeader(large: true)
-                            ClockCard(large: true)
-                            lineScoreCard
-                        }
-                        .padding([.leading, .vertical])
+            if twoColumns {
+                HStack(alignment: .top, spacing: isPad ? 20 : 12) {
+                    VStack(spacing: isPad ? 16 : 8) {
+                        ScoreHeader(size: isPad ? .large : .compact)
+                        ClockCard(size: isPad ? .large : .compact)
+                        if isPad { lineScoreCard }
+                        Spacer(minLength: 0)
                     }
-                    ScrollView {
-                        VStack(spacing: 16) {
-                            HalfTallyBar(large: true)
-                            ScoringPad(large: true)
-                        }
-                        .padding([.trailing, .vertical])
+                    VStack(spacing: isPad ? 16 : 8) {
+                        HalfTallyBar(size: isPad ? .large : .compact)
+                        ScoringPad(size: isPad ? .large : .compact)
                     }
-                    .frame(maxWidth: 520)
+                    .frame(maxWidth: isPad ? 560 : .infinity)
                 }
+                .padding(isPad ? 20 : 10)
             } else {
-                ScrollView {
-                    VStack(spacing: 14) {
-                        ScoreHeader(large: false)
-                        ClockCard(large: false)
-                        HalfTallyBar(large: false)
-                        ScoringPad(large: false)
-                        lineScoreCard
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+                VStack(spacing: 10) {
+                    ScoreHeader(size: .regular)
+                    ClockCard(size: .regular)
+                    HalfTallyBar(size: .regular)
+                    ScoringPad(size: .regular)
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
             }
         }
-        .safeAreaInset(edge: .bottom) { NextHalfBar() }
         .navigationTitle(store.game?.current.label ?? "Game")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button { newGame() } label: { Label("New game…", systemImage: "plus") }
-                    Button { confirmEndGame = true } label: { Label("End game now", systemImage: "flag.checkered") }
-                    Divider()
-                    Button(role: .destructive) { confirmDiscard = true } label: { Label("Discard game", systemImage: "trash") }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+            if !isPad {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showScores = true } label: {
+                        Label("Scores", systemImage: "tablecells")
+                    }
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) { menu }
+        }
+        .sheet(isPresented: $showScores) { scoresSheet }
+        .confirmationDialog(endHalfTitle, isPresented: $confirmEndHalf, titleVisibility: .visible) {
+            Button(endHalfButton) { advance() }
+        } message: {
+            Text(endHalfMessage)
         }
         .confirmationDialog("End the game now?", isPresented: $confirmEndGame, titleVisibility: .visible) {
             Button("End game – result stands") { store.finishGame() }
@@ -73,6 +80,55 @@ struct LiveGameView: View {
         }
     }
 
+    // MARK: Menu
+
+    private var menu: some View {
+        Menu {
+            if let g = store.game {
+                Button { confirmEndHalf = true } label: {
+                    Label(g.isLastHalf ? "End game" : "End \(g.current.label) now",
+                          systemImage: g.isLastHalf ? "flag.checkered" : "forward.end")
+                }
+            }
+            Button { showScores = true } label: { Label("Scores so far", systemImage: "tablecells") }
+            Divider()
+            Button { newGame() } label: { Label("New game…", systemImage: "plus") }
+            Button { confirmEndGame = true } label: { Label("End game now", systemImage: "flag.checkered") }
+            Button(role: .destructive) { confirmDiscard = true } label: { Label("Discard game", systemImage: "trash") }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+    }
+
+    private var endHalfTitle: String {
+        guard let g = store.game else { return "" }
+        if store.clockStatus() == .timeUp { return g.isLastHalf ? "End the game?" : "Start \(nextLabel(g))?" }
+        return "Time isn't up yet"
+    }
+
+    private var endHalfButton: String {
+        guard let g = store.game else { return "OK" }
+        return g.isLastHalf ? "End game" : "End \(g.current.label), start \(nextLabel(g))"
+    }
+
+    private var endHalfMessage: String {
+        guard let g = store.game else { return "" }
+        let t = g.current.timer
+        let left = t.hasStarted ? "\(Theme.clock(store.remaining())) left on the clock." : "The clock hasn't been started."
+        return "\(left) \(g.current.label) scores will be locked."
+    }
+
+    private func nextLabel(_ g: Game) -> String {
+        g.isLastHalf ? "" : g.halves[g.currentIndex + 1].label
+    }
+
+    private func advance() {
+        guard let g = store.game else { return }
+        if g.isLastHalf { store.finishGame() } else { store.startNextHalf() }
+    }
+
+    // MARK: Scores
+
     private var lineScoreCard: some View {
         Group {
             if let g = store.game {
@@ -83,28 +139,51 @@ struct LiveGameView: View {
             }
         }
     }
+
+    private var scoresSheet: some View {
+        NavigationStack {
+            ScrollView {
+                if let g = store.game { GameSummaryView(game: g).padding() }
+            }
+            .navigationTitle("Scores so far")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { showScores = false } }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+
+/// Sizing for the three layouts.
+enum PanelSize {
+    case compact   // iPhone landscape
+    case regular   // iPhone portrait
+    case large     // iPad
 }
 
 // MARK: - Scoreboard
 
 struct ScoreHeader: View {
     @Environment(GameStore.self) private var store
-    let large: Bool
+    let size: PanelSize
+
+    private var scoreFont: CGFloat { size == .large ? 72 : (size == .regular ? 44 : 34) }
 
     var body: some View {
         if let g = store.game {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 tile(.away, g)
-                VStack(spacing: 2) {
+                VStack(spacing: 0) {
                     Text(g.current.isTop ? "TOP" : "BOT")
-                        .font(.caption.weight(.heavy))
+                        .font(.caption2.weight(.heavy))
                     Text("\(g.current.inning)")
-                        .font(.system(size: large ? 40 : 30, weight: .heavy, design: .rounded))
+                        .font(.system(size: size == .large ? 40 : 26, weight: .heavy, design: .rounded))
                     Text("of \(g.inningsCount)")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                .frame(width: large ? 70 : 52)
+                .frame(width: size == .large ? 70 : 44)
                 tile(.home, g)
             }
         }
@@ -112,38 +191,36 @@ struct ScoreHeader: View {
 
     private func tile(_ team: Team, _ g: Game) -> some View {
         let batting = g.current.battingTeam == team
-        return VStack(spacing: 2) {
+        return VStack(spacing: 0) {
             HStack(spacing: 4) {
-                if batting {
-                    Image(systemName: "figure.softball").font(.caption)
-                }
+                if batting { Image(systemName: "figure.softball").font(.caption) }
                 Text(g.name(team))
-                    .font(large ? .headline : .subheadline.weight(.semibold))
+                    .font(size == .large ? .headline : .subheadline.weight(.semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
             Text(g.total(team).scoreString)
-                .font(.system(size: large ? 72 : 52, weight: .heavy, design: .rounded))
+                .font(.system(size: scoreFont, weight: .heavy, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.5)
                 .lineLimit(1)
                 .contentTransition(.numericText())
                 .animation(.snappy, value: g.total(team))
             Text(batting ? "AT BAT" : "FIELDING")
-                .font(.caption2.weight(.heavy))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
+                .font(.system(size: 10, weight: .heavy))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 1)
                 .background(Capsule().fill(batting ? Theme.color(team) : Color.clear))
                 .foregroundStyle(batting ? Color.black : Color.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, size == .large ? 10 : 6)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 14)
                 .fill(Theme.color(team).opacity(batting ? 0.28 : 0.10))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 14)
                 .stroke(Theme.color(team).opacity(batting ? 1 : 0.3), lineWidth: batting ? 2 : 1)
         )
     }
@@ -153,7 +230,9 @@ struct ScoreHeader: View {
 
 struct ClockCard: View {
     @Environment(GameStore.self) private var store
-    let large: Bool
+    let size: PanelSize
+
+    private var clockFont: CGFloat { size == .large ? 110 : (size == .regular ? 64 : 52) }
 
     var body: some View {
         if let g = store.game {
@@ -161,68 +240,75 @@ struct ClockCard: View {
             let remaining = store.remaining()
             let color = Theme.clockColor(status)
             let timer = g.current.timer
+            let timeUp = status == .timeUp
 
-            VStack(spacing: 10) {
-                HStack {
-                    Text(Theme.statusText(status).uppercased())
+            VStack(spacing: size == .large ? 10 : 6) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(timeUp ? "TIME – \(g.current.label) over" : Theme.statusText(status).uppercased())
                         .font(.caption.weight(.heavy))
                         .foregroundStyle(color)
+                        .lineLimit(1)
                     Spacer()
                     Text("\(g.current.label) · \(Theme.duration(g.settings.halfInningSeconds))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
 
                 Text(Theme.clock(remaining))
-                    .font(.system(size: large ? 110 : 84, weight: .bold, design: .rounded))
+                    .font(.system(size: clockFont, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundStyle(color)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                    .pulsing(status == .timeUp)
+                    .pulsing(timeUp)
 
                 ProgressBar(fraction: timer.progress(at: store.now), color: color)
 
-                if status == .timeUp {
-                    Text(g.isLastHalf
-                         ? "\(g.current.label) is over. Enter any last scores, then End Game."
-                         : "\(g.current.label) is over. Enter any last scores, then start \(g.halves[g.currentIndex + 1].label).")
-                        .font(.callout.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                }
-
-                HStack(spacing: 12) {
-                    Button { store.addTime(-30) } label: {
-                        Text("−30s").frame(minWidth: 56)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(remaining <= 0)
-
-                    Button { store.toggleClock() } label: {
-                        Label(timer.isRunning ? "Pause" : (timer.hasStarted ? "Resume" : "Start clock"),
-                              systemImage: timer.isRunning ? "pause.fill" : "play.fill")
-                            .font(.title3.weight(.bold))
+                if timeUp {
+                    // The half is over: scores can still be entered until this is tapped.
+                    Button {
+                        if g.isLastHalf { store.finishGame() } else { store.startNextHalfAndClock() }
+                    } label: {
+                        Label(g.isLastHalf ? "End Game" : "Start \(g.halves[g.currentIndex + 1].label)",
+                              systemImage: g.isLastHalf ? "flag.checkered" : "play.fill")
+                            .font(.headline)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 4)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(timer.isRunning ? Theme.warning : Theme.positive)
-                    .disabled(status == .timeUp && !timer.isRunning)
+                    .tint(Theme.negative)
+                    .controlSize(.large)
+                } else {
+                    HStack(spacing: 10) {
+                        Button { store.addTime(-30) } label: {
+                            Text("−30s").frame(minWidth: 50)
+                        }
+                        .buttonStyle(.bordered)
 
-                    Button { store.addTime(30) } label: {
-                        Text("+30s").frame(minWidth: 56)
+                        Button { store.toggleClock() } label: {
+                            Label(timer.isRunning ? "Pause" : (timer.hasStarted ? "Resume" : "Start clock"),
+                                  systemImage: timer.isRunning ? "pause.fill" : "play.fill")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(timer.isRunning ? Theme.warning : Theme.positive)
+
+                        Button { store.addTime(30) } label: {
+                            Text("+30s").frame(minWidth: 50)
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
+                    .controlSize(size == .compact ? .regular : .large)
                 }
-                .controlSize(.large)
             }
-            .padding()
+            .padding(size == .large ? 16 : 10)
             .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(status == .timeUp ? Theme.negative.opacity(0.22) : Theme.card)
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(timeUp ? Theme.negative.opacity(0.22) : Theme.card)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 18)
                     .stroke(color.opacity(status == .ready || status == .paused ? 0.3 : 0.9), lineWidth: 2)
             )
             .animation(.easeInOut(duration: 0.3), value: status)
@@ -235,15 +321,18 @@ struct ClockCard: View {
 /// Plus, Minus and Total for the half being scored.
 struct HalfTallyBar: View {
     @Environment(GameStore.self) private var store
-    let large: Bool
+    let size: PanelSize
+
+    private var valueFont: CGFloat { size == .large ? 48 : (size == .regular ? 32 : 28) }
 
     var body: some View {
         if let g = store.game {
             let h = g.current
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 Text("\(h.label) – \(g.name(h.battingTeam)) batting")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Theme.color(h.battingTeam))
+                    .lineLimit(1)
                 HStack(spacing: 8) {
                     stat("PLUS", "+\(h.positive)", Theme.positive)
                     stat("MINUS", h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
@@ -257,7 +346,7 @@ struct HalfTallyBar: View {
         VStack(spacing: 0) {
             Text(title).font(.caption2.weight(.heavy)).foregroundStyle(.secondary)
             Text(value)
-                .font(.system(size: large ? 48 : 38, weight: .heavy, design: .rounded))
+                .font(.system(size: valueFont, weight: .heavy, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(color)
                 .lineLimit(1)
@@ -266,63 +355,8 @@ struct HalfTallyBar: View {
                 .animation(.snappy, value: value)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, size == .large ? 10 : 6)
         .background(RoundedRectangle(cornerRadius: 14).fill(emphasised ? Theme.cardRaised : Theme.card))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(color.opacity(emphasised ? 0.6 : 0.25), lineWidth: emphasised ? 2 : 1))
-    }
-}
-
-// MARK: - Next half / end game
-
-struct NextHalfBar: View {
-    @Environment(GameStore.self) private var store
-    @State private var confirmEarly = false
-
-    var body: some View {
-        if let g = store.game, !g.isFinished {
-            let status = store.clockStatus()
-            let timeUp = status == .timeUp
-            let title = g.isLastHalf ? "End Game" : "Start \(g.halves[g.currentIndex + 1].label)"
-            let subtitle = g.isLastHalf ? "Locks in the final score" : "Closes \(g.current.label) scoring"
-
-            Button {
-                if timeUp { advance(g) } else { confirmEarly = true }
-            } label: {
-                HStack {
-                    Image(systemName: g.isLastHalf ? "flag.checkered" : "arrow.right.circle.fill")
-                        .font(.title2)
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(title).font(.headline)
-                        Text(subtitle).font(.caption).opacity(0.8)
-                    }
-                    Spacer()
-                    if timeUp {
-                        Text("TIME").font(.caption.weight(.heavy))
-                            .padding(.horizontal, 8).padding(.vertical, 3)
-                            .background(Capsule().fill(.white.opacity(0.25)))
-                    }
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 6)
-                .frame(maxWidth: 900)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(timeUp ? Theme.negative : Color(white: 0.3))
-            .controlSize(.large)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
-            .confirmationDialog(timeUp ? title : "Time isn't up yet", isPresented: $confirmEarly, titleVisibility: .visible) {
-                Button(g.isLastHalf ? "End game now" : "End \(g.current.label) now") { advance(g) }
-            } message: {
-                Text(g.current.timer.hasStarted
-                     ? "\(Theme.clock(store.remaining())) left on the clock for \(g.current.label)."
-                     : "The clock hasn't been started for \(g.current.label).")
-            }
-        }
-    }
-
-    private func advance(_ g: Game) {
-        if g.isLastHalf { store.finishGame() } else { store.startNextHalf() }
     }
 }

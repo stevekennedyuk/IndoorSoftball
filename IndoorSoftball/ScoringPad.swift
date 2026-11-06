@@ -1,15 +1,18 @@
 import SwiftUI
 
 /// Three big scoring buttons: +1, −1 and Home Run (worth the Home Run setting).
+/// The buttons stretch to fill whatever height is left on screen.
 struct ScoringPad: View {
     @Environment(GameStore.self) private var store
-    let large: Bool
+    let size: PanelSize
+
+    private var digitFont: CGFloat { size == .large ? 64 : (size == .regular ? 50 : 40) }
 
     var body: some View {
         if let g = store.game {
             let hr = g.settings.homeRunPoints
-            VStack(spacing: 12) {
-                HStack(spacing: 12) {
+            VStack(spacing: size == .compact ? 8 : 10) {
+                HStack(spacing: size == .compact ? 8 : 10) {
                     bigButton(title: "+1", subtitle: "Point", symbol: "plus", color: Theme.positive) {
                         store.record(.adjustPlus)
                     }
@@ -17,34 +20,47 @@ struct ScoringPad: View {
                         store.record(.adjustMinus)
                     }
                 }
-                bigButton(title: "HR  \(hr.signedString)", subtitle: "Home Run", symbol: "star.fill",
-                          color: Theme.warning, height: large ? 110 : 88) {
-                    store.record(.homeRun)
+                .frame(minHeight: 72, maxHeight: .infinity)
+                .layoutPriority(2)
+
+                HStack(spacing: size == .compact ? 8 : 10) {
+                    bigButton(title: "HR \(hr.signedString)", subtitle: "Home Run", symbol: "star.fill",
+                              color: Theme.warning, digitScale: 0.7) {
+                        store.record(.homeRun)
+                    }
+                    Button { store.undo() } label: {
+                        VStack(spacing: 2) {
+                            Image(systemName: "arrow.uturn.backward").font(.title2.weight(.bold))
+                            Text("Undo").font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(store.canUndo ? Color.primary : Color.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .buttonStyle(PadButtonStyle(color: .gray))
+                    .frame(width: size == .large ? 110 : 76)
+                    .disabled(!store.canUndo)
+                    .accessibilityLabel("Undo last")
                 }
-                Button { store.undo() } label: {
-                    Label("Undo last", systemImage: "arrow.uturn.backward")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.large)
-                .disabled(!store.canUndo)
+                .frame(minHeight: 50, maxHeight: size == .large ? 130 : 96)
+                .layoutPriority(1)
             }
         }
     }
 
     private func bigButton(title: String, subtitle: String, symbol: String, color: Color,
-                           height: CGFloat? = nil, action: @escaping () -> Void) -> some View {
+                           digitScale: CGFloat = 1, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: 0) {
                 Text(title)
-                    .font(.system(size: large ? 64 : 52, weight: .heavy, design: .rounded))
+                    .font(.system(size: digitFont * digitScale, weight: .heavy, design: .rounded))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.5)
+                    .minimumScaleFactor(0.4)
                 Label(subtitle, systemImage: symbol)
-                    .font(large ? .headline : .subheadline.weight(.semibold))
+                    .font(size == .large ? .headline : .caption.weight(.semibold))
+                    .lineLimit(1)
             }
             .foregroundStyle(color)
-            .frame(maxWidth: .infinity, minHeight: height ?? (large ? 170 : 140))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .buttonStyle(PadButtonStyle(color: color))
         .accessibilityLabel("\(subtitle), \(title)")

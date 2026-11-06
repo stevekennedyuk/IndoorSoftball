@@ -303,7 +303,11 @@ struct NextHalfButton: View {
         if let g = store.game, !g.isFinished {
             let timeUp = store.clockStatus() == .timeUp
             Button {
-                if timeUp { advance(g) } else { confirm = true }
+                if timeUp {
+                    if g.isLastHalf { store.finishGame() } else { store.startNextHalfAndClock() }
+                } else {
+                    confirm = true
+                }
             } label: {
                 Label(g.isLastHalf ? "End Game" : "Start \(g.halves[g.currentIndex + 1].shortLabel)",
                       systemImage: g.isLastHalf ? "flag.checkered" : "arrow.right.circle.fill")

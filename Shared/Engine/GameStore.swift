@@ -240,6 +240,14 @@ final class GameStore {
         rescheduleAlerts()
     }
 
+    /// Used by the clock's "Start Bottom 1" button once time is up: locks the
+    /// finished half and starts the next half's clock in one tap.
+    func startNextHalfAndClock(at date: Date = Date()) {
+        guard let g = game, !g.isFinished, !g.isLastHalf else { return }
+        startNextHalf(at: date)
+        startClock(at: date)
+    }
+
     /// Ends the game (normally after the last half; can also end early).
     func finishGame(at date: Date = Date()) {
         guard var g = game, !g.isFinished else { return }

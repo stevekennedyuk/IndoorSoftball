@@ -83,7 +83,7 @@ Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple
 **What to Test (build 1)**
 - Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, HR +5.
 - Start the clock and score with +1, −1 and HR. Check the Plus, Minus and Total tallies and Undo.
-- Let the clock run out. You should get the red flashing TIME, haptics and a sound, and you should still be able to enter scores until you tap "Start …".
+- Let the clock run out. You should get the red flashing TIME, haptics and a sound, and you should still be able to enter scores until you tap "Start Bottom 1" on the clock, which locks the half and starts the next clock.
 - Lock the phone while the clock runs and check that the 1-minute and TIME notifications arrive.
 - Finish the game and check the final screen: each inning's tallies, the end-of-inning scores and the winner. A tie stands as a tie.
 - Score a game on the Apple Watch and check that it appears in History on the iPhone. Change a setting on one device and check that it changes on the other.
