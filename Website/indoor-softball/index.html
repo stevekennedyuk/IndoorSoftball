@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indoor Softball Scorer – NetTek</title>
+<meta name="description" content="Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple Watch.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#06171a; --panel:#0c2429; --line:#17393f; --teal:#2dd4bf; --text:#e6f4f1; --muted:#9bb8b3; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:17px/1.65 "DM Sans",system-ui,sans-serif; }
+a { color:var(--teal); }
+header, main, footer { max-width:860px; margin:0 auto; padding:0 22px; }
+header { display:flex; justify-content:space-between; align-items:center; padding-top:22px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+header a.brand { font:800 22px "Syne",sans-serif; color:var(--text); text-decoration:none; letter-spacing:.02em; }
+header nav a { margin-left:18px; text-decoration:none; color:var(--muted); }
+header nav a:hover { color:var(--teal); }
+h1, h2 { font-family:"Syne",sans-serif; line-height:1.2; }
+h1 { font-size:clamp(32px,6vw,52px); font-weight:800; margin:.3em 0 .2em; }
+h2 { font-size:24px; font-weight:600; margin-top:1.8em; color:var(--teal); }
+.hero { display:flex; gap:28px; align-items:center; padding:42px 0 10px; flex-wrap:wrap; }
+.hero img { width:128px; height:128px; border-radius:28px; box-shadow:0 10px 40px rgba(45,212,191,.18); }
+.lead { color:var(--muted); font-size:19px; margin:0; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin-top:20px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px 20px; }
+.card h3 { margin:0 0 6px; font-family:"Syne",sans-serif; font-size:18px; }
+table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; }
+td, th { text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); }
+th { color:var(--muted); font-weight:500; }
+.pos { color:#4ade80; font-weight:700; } .neg { color:#f87171; font-weight:700; }
+.button { display:inline-block; background:var(--teal); color:#042f2e; padding:10px 18px; border-radius:999px; font-weight:700; text-decoration:none; }
+footer { border-top:1px solid var(--line); margin-top:56px; padding-top:22px; padding-bottom:40px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/">NetTek</a>
+  <nav><a href="/indoor-softball/">Indoor Softball</a><a href="/indoor-softball/privacy/">Privacy</a><a href="/">nettek.uk</a></nav>
+</header>
+<main>
+<section class="hero">
+  <img src="icon.png" alt="Indoor Softball app icon">
+  <div>
+    <h1>Indoor Softball Scorer</h1>
+    <p class="lead">Score keeper and half-inning timer for indoor softball, on iPhone, iPad and Apple Watch.</p>
+  </div>
+</section>
+
+<div class="grid">
+  <div class="card"><h3>Timed half innings</h3>Big colour-coded countdown, haptic and sound alerts, and a flashing TIME when the half is over. You can still enter the last scores until the next half starts.</div>
+  <div class="card"><h3>Points scoring</h3>Points for every base reached, runs, home runs off the wall and negative points for outs. Every value can be changed.</div>
+  <div class="card"><h3>Clear results</h3>Plus and minus tallies for each half, the score at the end of each inning, and the final result. Scores can go negative.</div>
+  <div class="card"><h3>On your wrist</h3>A full Apple Watch app. Settings and finished games sync with your iPhone.</div>
+</div>
+
+<h2>Default scoring</h2>
+<table>
+<tr><th>Play</th><th>Points</th></tr>
+<tr><td>Batter reaches 1st / 2nd / 3rd off the bat</td><td class="pos">+1 / +2 / +3</td></tr>
+<tr><td>Batter gets home off the hit</td><td class="pos">+4</td></tr>
+<tr><td>Runner on base crosses home</td><td class="pos">+1</td></tr>
+<tr><td>Home run off the back wall</td><td class="pos">+5, plus +1 per runner on base</td></tr>
+<tr><td>Batter or runner out</td><td class="neg">−1</td></tr>
+<tr><td>Runner out at home by the catcher</td><td class="neg">−2</td></tr>
+</table>
+<p>The defaults are 2 innings with 5-minute half innings, adjustable in 30-second steps. An Outdoor preset sets 0 points per base and 4 for a home run. The highest total wins, so −5 beats −10, and a tied game stays tied.</p>
+
+<h2>Help &amp; support</h2>
+<div class="card">
+<p><strong>Starting a game:</strong> Game → New Game. Enter the team names and check the settings. Settings are remembered for future games until you change them.</p>
+<p><strong>During a half:</strong> tap Start clock, then tap a button for each play. Use Undo, or press and hold an entry to remove it, if you make a mistake.</p>
+<p><strong>When time is up:</strong> enter any remaining scores, then tap “Start …” to lock the half and move on. On the last half, tap End Game.</p>
+<p><strong>Apple Watch:</strong> swipe up and down between the clock, scoring, tallies and controls pages. To keep the app on screen between plays, go to Settings → General → Return to Clock on the watch.</p>
+<p>Questions, problems or ideas? Email <a href="mailto:support@nettek.uk?subject=Indoor%20Softball">support@nettek.uk</a>.</p>
+</div>
+
+<h2>Privacy</h2>
+<p>The app collects no data: no accounts, no ads, no analytics. Read the <a href="privacy/">privacy policy</a>.</p>
+</main>
+<footer>© 2026 NetTek Ltd · London · <a href="https://nettek.uk">nettek.uk</a> · <a href="mailto:support@nettek.uk">support@nettek.uk</a></footer>
+</body>
+</html>
