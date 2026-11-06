@@ -15,7 +15,7 @@ The scoring screen has three big buttons:
 Under the buttons are the **Plus**, **Minus** and **Total** tallies for the half being scored. Undo removes the last tap.
 
 * Innings default 2 (Away bats then Home bats = 1 inning); time per half default 5:00 in 30 s steps; warning at 1:00 left.
-* Outs never end a half — only the clock does. When time is up the clock turns red and flashes (with haptics and sound), shows overtime, and **scores can still be entered until the next half is started**.
+* Outs never end a half — only the clock does. When time is up the clock stops at 0:00, turns red and flashes (with haptics and sound) – that half is over, but **+1 / −1 / HR still work until Start Bottom 1 (or End Game) is tapped**.
 * Each half keeps a plus tally and a minus tally; the half's score is their sum and can be negative.
 * Highest total wins, so −5 beats −10. Ties stand – there are no extra innings.
 * Settings (innings, time per half, warning time, HR value) carry forward to every new game until changed. A game in progress keeps the settings it started with.

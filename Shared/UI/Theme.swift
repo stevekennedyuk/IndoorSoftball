@@ -27,14 +27,10 @@ enum Theme {
         }
     }
 
-    /// "4:59" while counting down; "+0:12" once time is up (overtime).
+    /// "4:59" while counting down; "0:00" once time is up (the clock stops there).
     static func clock(_ remaining: TimeInterval) -> String {
-        if remaining > 0 {
-            let s = Int(remaining.rounded(.up))
-            return String(format: "%d:%02d", s / 60, s % 60)
-        }
-        let over = Int((-remaining).rounded(.down))
-        return String(format: "+%d:%02d", over / 60, over % 60)
+        let s = Int(max(0, remaining).rounded(.up))
+        return String(format: "%d:%02d", s / 60, s % 60)
     }
 
     /// "5:00", "4:30", "30s" for settings.

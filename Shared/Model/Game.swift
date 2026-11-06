@@ -20,7 +20,7 @@ struct HalfTimer: Codable, Equatable, Sendable {
         accumulated + (runningSince.map { max(0, now.timeIntervalSince($0)) } ?? 0)
     }
 
-    /// Seconds left; negative once time is up (that's the overtime).
+    /// Seconds left (never below zero once the store has stopped the clock).
     func remaining(at now: Date) -> TimeInterval {
         duration - elapsed(at: now)
     }

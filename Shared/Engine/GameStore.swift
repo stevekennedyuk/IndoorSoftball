@@ -95,10 +95,19 @@ final class GameStore {
             warnedHalf = g.currentIndex
             feedback?.warning()
         }
-        if remaining <= 0, timeUpHalf != g.currentIndex {
-            timeUpHalf = g.currentIndex
-            warnedHalf = g.currentIndex
-            feedback?.timeUp()
+        if remaining <= 0 {
+            // Time is up: the clock stops at exactly 0:00 and the half is over.
+            // Scores can still be entered until the next half is started.
+            if let end = half.timer.endDate {
+                var stopped = g
+                stopped.halves[g.currentIndex].timer.pause(at: end)
+                game = stopped
+            }
+            if timeUpHalf != g.currentIndex {
+                timeUpHalf = g.currentIndex
+                warnedHalf = g.currentIndex
+                feedback?.timeUp()
+            }
         }
     }
 
