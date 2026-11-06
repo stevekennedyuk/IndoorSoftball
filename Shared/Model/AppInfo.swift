@@ -9,6 +9,15 @@ enum AppInfo {
     static let privacyURL = URL(string: "https://nettek.uk/indoor-softball/privacy/")!
     static let supportEmail = "support@nettek.uk"
 
+    /// mailto: link with the app version in the subject (safely encoded).
+    static var feedbackMailURL: URL {
+        var c = URLComponents()
+        c.scheme = "mailto"
+        c.path = supportEmail
+        c.queryItems = [URLQueryItem(name: "subject", value: "Indoor Softball \(version)")]
+        return c.url ?? URL(string: "mailto:\(supportEmail)")!
+    }
+
     static var version: String {
         let info = Bundle.main.infoDictionary
         let v = info?["CFBundleShortVersionString"] as? String ?? "?"

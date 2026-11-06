@@ -45,7 +45,7 @@ struct SettingsScreen: View {
                 Link(destination: AppInfo.privacyURL) {
                     Label("Privacy policy", systemImage: "hand.raised")
                 }
-                Link(destination: URL(string: "mailto:\(AppInfo.supportEmail)?subject=Indoor%20Softball%20\(AppInfo.version)")!) {
+                Link(destination: AppInfo.feedbackMailURL) {
                     Label("Email feedback", systemImage: "envelope")
                 }
                 Text("\(AppInfo.copyright) · nettek.uk")
