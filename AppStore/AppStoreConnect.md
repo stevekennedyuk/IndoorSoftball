@@ -9,7 +9,7 @@
 | iOS bundle ID | `uk.nettek.IndoorSoftball` |
 | watchOS bundle ID | `uk.nettek.IndoorSoftball.watchkitapp` |
 | SKU | `uk.nettek.indoorsoftball` |
-| Version / build | 1.0 (1). The project always holds the next unused build number, so bump it straight after each confirmed upload. |
+| Version / build | 1.0 (2). Build 1 has been uploaded. The project always holds the next unused build number, so bump it straight after each confirmed upload. The iPhone and Watch apps must have the same build number. |
 | Copyright | © 2026 NetTek Ltd |
 | Primary category | Sports |
 | Secondary category | Utilities |
@@ -80,8 +80,9 @@ softball,indoor,scorer,scoreboard,umpire,timer,innings,points,league,scorekeeper
 **Beta App Description**
 Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple Watch. +1 / −1 / Home Run scoring with plus, minus and total tallies; each half inning is timed.
 
-**What to Test (build 1)**
+**What to Test (build 2)**
 - Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, HR +5.
+- New in build 2: the About screen (Settings → About), the larger iPad clock, and the clock stopping at 0:00.
 - Start the clock and score with +1, −1 and HR. Check the Plus, Minus and Total tallies and Undo.
 - Let the clock run out. You should get the red flashing TIME, haptics and a sound, and you should still be able to enter scores until you tap "Start Bottom 1" on the clock, which locks the half and starts the next clock.
 - Lock the phone while the clock runs and check that the 1-minute and TIME notifications arrive.
