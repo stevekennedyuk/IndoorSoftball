@@ -38,6 +38,11 @@ struct SettingsScreen: View {
             }
             SettingsSections(settings: $store.settings)
             Section("About") {
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    Label("About Indoor Softball", systemImage: "info.circle")
+                }
                 LabeledContent("Version", value: AppInfo.version)
                 Link(destination: AppInfo.supportURL) {
                     Label("Help & support", systemImage: "questionmark.circle")
@@ -48,7 +53,7 @@ struct SettingsScreen: View {
                 Link(destination: AppInfo.feedbackMailURL) {
                     Label("Email feedback", systemImage: "envelope")
                 }
-                Text("\(AppInfo.copyright) · nettek.uk")
+                Text("Developed by \(AppInfo.developer) · \(AppInfo.copyright)")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

@@ -7,6 +7,7 @@ enum Theme {
     static let negative = Color(red: 1.00, green: 0.32, blue: 0.32)
     static let warning = Color(red: 1.00, green: 0.76, blue: 0.05)
     static let idle = Color(white: 0.55)
+    static let powderBlue = Color(red: 0.70, green: 0.83, blue: 0.93)   // umpire shirt blue (app icon)
     static let card = Color(white: 0.13)
     static let cardRaised = Color(white: 0.19)
 

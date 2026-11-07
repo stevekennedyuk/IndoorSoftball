@@ -101,8 +101,12 @@ struct WatchSettingsView: View {
         Form {
             SettingsSections(settings: $store.settings, compact: true)
             Section("About") {
+                NavigationLink {
+                    AboutView(compact: true)
+                } label: {
+                    Label("About", systemImage: "info.circle")
+                }
                 Text("Version \(AppInfo.version)")
-                Text("\(AppInfo.copyright)\nnettek.uk")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

@@ -2,7 +2,12 @@ import Foundation
 
 /// Publisher details shown in the app and used for App Store / TestFlight.
 enum AppInfo {
+    static let appName = "Indoor Softball"
+    static let tagline = "Score keeper and half-inning timer for indoor softball, on iPhone, iPad and Apple Watch."
+    static let developer = "Steve Karmeinsky"
     static let publisher = "NetTek Ltd"
+    static let aboutNetTek = "NetTek Ltd is a London-based internet and telecommunications consultancy, founded in 1994."
+    static let netTekServices = "Its work spans iOS and watchOS app development, electronics design, web development and server administration."
     static let copyright = "© 2026 NetTek Ltd"
     static let website = URL(string: "https://nettek.uk")!
     static let supportURL = URL(string: "https://nettek.uk/indoor-softball/")!
