@@ -28,9 +28,9 @@ struct LiveGameView: View {
                 HStack(alignment: .top, spacing: isPad ? 20 : 12) {
                     VStack(spacing: isPad ? 16 : 8) {
                         ScoreHeader(size: isPad ? .large : .compact)
-                        ClockCard(size: isPad ? .large : .compact)
-                        if isPad { lineScoreCard }
-                        Spacer(minLength: 0)
+                        // On iPad the clock grows to fill the column (big digits for the scorer's table).
+                        ClockCard(size: isPad ? .large : .compact, expand: isPad)
+                        if isPad { lineScoreCard } else { Spacer(minLength: 0) }
                     }
                     VStack(spacing: isPad ? 16 : 8) {
                         HalfTallyBar(size: isPad ? .large : .compact)
@@ -231,8 +231,10 @@ struct ScoreHeader: View {
 struct ClockCard: View {
     @Environment(GameStore.self) private var store
     let size: PanelSize
+    /// Stretch to fill the available height (iPad left column).
+    var expand = false
 
-    private var clockFont: CGFloat { size == .large ? 110 : (size == .regular ? 64 : 52) }
+    private var clockFont: CGFloat { size == .large ? (expand ? 170 : 110) : (size == .regular ? 64 : 52) }
 
     var body: some View {
         if let g = store.game {
@@ -255,6 +257,7 @@ struct ClockCard: View {
                         .lineLimit(1)
                 }
 
+                if expand { Spacer(minLength: 0) }
                 Text(Theme.clock(remaining))
                     .font(.system(size: clockFont, weight: .bold, design: .rounded))
                     .monospacedDigit()
@@ -262,6 +265,7 @@ struct ClockCard: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .pulsing(timeUp)
+                if expand { Spacer(minLength: 0) }
 
                 ProgressBar(fraction: timer.progress(at: store.now), color: color)
 
@@ -302,6 +306,7 @@ struct ClockCard: View {
                     .controlSize(size == .compact ? .regular : .large)
                 }
             }
+            .frame(maxHeight: expand ? .infinity : nil)
             .padding(size == .large ? 16 : 10)
             .background(
                 RoundedRectangle(cornerRadius: 18)

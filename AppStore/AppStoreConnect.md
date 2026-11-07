@@ -93,6 +93,18 @@ Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple
 
 **Beta App Review contact:** Steve Karmeinsky, NetTek Ltd. No sign-in is needed, so leave the demo account blank.
 
+## Screenshots & icon (`AppStore/screenshots/`)
+
+Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `AppStore/fonts/`; Inter and Nunito are both SIL OFL.
+
+| App Store Connect slot | Files (upload in order 1 → 3) |
+|---|---|
+| iPhone 6.9" Display (1320 × 2868) | `iphone69_1_scoring`, `iphone69_2_timeup`, `iphone69_3_result` |
+| iPhone 6.5" Display (1242 × 2688), optional if 6.9" is supplied | `iphone65_1_scoring`, `iphone65_2_timeup`, `iphone65_3_result` |
+| iPad 13" Display (2064 × 2752) | `ipad13_1_scoring` |
+| Apple Watch (422 × 514, Ultra) | `watch_1_scoring`, `watch_2_clock` |
+| App icon (1024 × 1024, opaque) | `appstore_icon_1024x1024.png`. It's the same picture as the Xcode AppIcon; App Store Connect and TestFlight take the icon from the build, so this copy is for the website or press. |
+
 ## Upload checklist
 
 1. In App Store Connect, create the app record (bundle ID `uk.nettek.IndoorSoftball`, SKU above).
