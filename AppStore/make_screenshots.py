@@ -10,6 +10,8 @@ views) under a marketing headline, at the sizes App Store Connect accepts:
     iPhone 6.3"   1206 x 2622   (asked for by App Store Connect)
     iPhone 6.1"   1179 x 2556   (asked for by App Store Connect)
     iPhone         886 x 1920   (app-preview size slot)
+    iPhone Duo    1398 x 2034   (outer / folded screen)
+    iPhone Duo    2007 x 2853   (inner / unfolded screen)
     iPad 13"      2064 x 2752   ("iPad 13-inch Display")
     Apple Watch    422 x  514   (Ultra size – raw screens, no headline)
     App icon      1024 x 1024   (App Store / TestFlight icon, opaque RGB)
@@ -174,10 +176,12 @@ def tab_bar(s, w, h, active=0):
 
 
 # ---------------------------------------------------------------- iOS components
-def score_header(s, x, y, w, inning, top, away_total, home_total, large=False):
+def score_header(s, x, y, w, inning, top, away_total, home_total, large=False, compact=False):
     cw = 44 if not large else 70
     tw = (w - cw - 16) / 2
     th = 92 if not large else 126
+    if compact:
+        th = 80
     for i, team in enumerate(("away", "home")):
         tx = x if i == 0 else x + tw + cw + 16
         batting = (team == "away") == top
@@ -188,7 +192,7 @@ def score_header(s, x, y, w, inning, top, away_total, home_total, large=False):
         nx = tx + tw / 2
         s.text(nx, y + 15 if not large else y + 20, ("⚾ " if False else "") + name, "sb", 15 if not large else 18, WHITE, "mm")
         total = away_total if team == "away" else home_total
-        s.text(nx, y + (48 if not large else 66), score(total), "rnd", 44 if not large else 72, WHITE, "mm")
+        s.text(nx, y + (42 if compact else (48 if not large else 66)), score(total), "rnd", 34 if compact else (44 if not large else 72), WHITE, "mm")
         badge = "AT BAT" if batting else "FIELDING"
         bw = s.width(badge, "xb", 10) + 12
         if batting:
@@ -201,10 +205,12 @@ def score_header(s, x, y, w, inning, top, away_total, home_total, large=False):
     return y + th
 
 
-def clock_card(s, x, y, w, label, clock, frac, state, next_label=None, large=False, fill_h=None):
+def clock_card(s, x, y, w, label, clock, frac, state, next_label=None, large=False, fill_h=None, compact=False):
     col = {"running": POS, "timeup": NEG, "ready": IDLE}[state]
     big = 64 if not large else (170 if fill_h else 110)
     h = (170 if not large else 250) if state != "timeup" else (172 if not large else 252)
+    if compact:
+        big, h = 52, 150
     if fill_h:
         h = fill_h
     s.rect(x, y, w, h, 18, fill=mix(NEG, BLACK, 0.22) if state == "timeup" else CARD,
@@ -214,15 +220,17 @@ def clock_card(s, x, y, w, label, clock, frac, state, next_label=None, large=Fal
     s.text(x + p, y + p + 8, status, "xb", 12 if not large else 14, col, "lm")
     s.text(x + w - p, y + p + 8, f"{label} · 5:00", "r", 12 if not large else 14, GREY, "rm")
     bh = 46 if not large else 56
+    if compact:
+        bh = 36
     if fill_h:
         by = y + h - p - bh - 16 - 8
         s.text(x + w / 2, (y + p + 20 + by) / 2, clock, "rnd", big, col, "mm")
     else:
         s.text(x + w / 2, y + p + 22 + big * 0.52, clock, "rnd", big, col, "mm")
-        by = y + p + 26 + big * 1.0
+        by = y + p + (24 if compact else 26) + big * 1.0
     s.rect(x + p, by, w - 2 * p, 8, 4, fill=(45, 45, 48))
     s.rect(x + p, by, max(8, (w - 2 * p) * frac), 8, 4, fill=col)
-    ry = by + 16
+    ry = by + (12 if compact else 16)
     if state == "timeup":
         s.rect(x + p, ry, w - 2 * p, bh, 12, fill=NEG)
         s.text(x + w / 2, ry + bh / 2, f"▶  {next_label}", "b", 18 if not large else 22, WHITE, "mm")
@@ -249,11 +257,13 @@ def clock_card(s, x, y, w, label, clock, frac, state, next_label=None, large=Fal
     return y + h
 
 
-def tally_bar(s, x, y, w, label, plus, minus, batting_col, large=False):
+def tally_bar(s, x, y, w, label, plus, minus, batting_col, large=False, compact=False):
     s.text(x + w / 2, y + 8, label, "sb", 12 if not large else 15, batting_col, "mm")
     y += 18
     bw = (w - 16) / 3
     bh = 66 if not large else 92
+    if compact:
+        bh = 56
     tot = plus + minus
     items = [("PLUS", f"+{plus}", POS, False), ("MINUS", sgn(minus) if minus else "−0", NEG, False),
              ("TOTAL", score(tot), POS if tot > 0 else (NEG if tot < 0 else IDLE), True)]
@@ -262,7 +272,7 @@ def tally_bar(s, x, y, w, label, plus, minus, batting_col, large=False):
         s.rect(bx, y, bw, bh, 14, fill=CARD2 if emph else CARD, outline=mix(c, BLACK, 0.6 if emph else 0.25),
                width=2 if emph else 1)
         s.text(bx + bw / 2, y + 13 if not large else y + 16, t, "xb", 10 if not large else 12, GREY, "mm")
-        s.text(bx + bw / 2, y + bh / 2 + 8, v, "rnd", 32 if not large else 48, c, "mm")
+        s.text(bx + bw / 2, y + bh / 2 + 8, v, "rnd", 28 if compact else (32 if not large else 48), c, "mm")
     return y + bh
 
 
@@ -272,20 +282,24 @@ def pad_button(s, x, y, w, h, title, sub, col, big):
     s.text(x + w / 2, y + h / 2 + big * 0.55, sub, "sb", max(12, big * 0.24), col, "mm")
 
 
-def scoring_pad(s, x, y, w, h, hr=5, large=False):
-    gap = 10
-    row2 = 96 if not large else 130
+def scoring_pad(s, x, y, w, h, hr=5, large=False, compact=False):
+    gap = 8 if compact else 10
+    row2 = 110 if large else (48 if compact else 80)   # matches ScoringPad.hrRowHeight
     row1 = h - row2 - gap
     bw = (w - gap) / 2
     pad_button(s, x, y, bw, row1, "+1", "Point", POS, 50 if not large else 64)
     pad_button(s, x + bw + gap, y, bw, row1, "−1", "Minus", NEG, 50 if not large else 64)
     uw = 76 if not large else 110
-    pad_button(s, x, y + row1 + gap, w - uw - gap, row2, f"HR +{hr}", "★ Home Run", WARN, 36 if not large else 46)
+    pad_button(s, x, y + row1 + gap, w - uw - gap, row2, f"HR +{hr}", "" if compact else "★ Home Run", WARN,
+               26 if compact else (36 if not large else 46))
     ux = x + w - uw
     uy = y + row1 + gap
     s.rect(ux, uy, uw, row2, 14, fill=mix((140, 140, 140), BLACK, 0.16), outline=mix((140, 140, 140), BLACK, 0.55), width=1.5)
-    s.text(ux + uw / 2, uy + row2 / 2 - 8, "↩", "b", 26, WHITE, "mm")
-    s.text(ux + uw / 2, uy + row2 / 2 + 20, "Undo", "sb", 12, WHITE, "mm")
+    if compact:
+        s.text(ux + uw / 2, uy + row2 / 2, "↩", "b", 22, WHITE, "mm")
+    else:
+        s.text(ux + uw / 2, uy + row2 / 2 - 8, "↩", "b", 26, WHITE, "mm")
+        s.text(ux + uw / 2, uy + row2 / 2 + 20, "Undo", "sb", 12, WHITE, "mm")
 
 
 def line_score(s, x, y, w, rows, large=False):
@@ -320,8 +334,9 @@ def line_score(s, x, y, w, rows, large=False):
 IPH_W, IPH_H = 402, 874   # iPhone 17 Pro / 16 Pro logical size
 
 
-def iphone_live(s, state):
-    w, h = IPH_W, IPH_H
+def iphone_live(s, state, w=IPH_W, h=IPH_H, mode="regular"):
+    large, compact = mode == "large", mode == "compact"
+    gap = 14 if large else (8 if compact else 10)
     s.rect(0, 0, w, h, 0, fill=BLACK)
     status_bar(s, w)
     nav_bar(s, w, 50, "Top 2", left="Scores")
@@ -329,20 +344,21 @@ def iphone_live(s, state):
     half = GAME["t2_live"] if state == "running" else GAME["t2"]
     away_total = net(t1) + net(half)
     home_total = net(b1)
-    x, cw = 14, w - 28
+    x = 24 if large else 14
+    cw = w - 2 * x
     y = 104
-    y = score_header(s, x, y, cw, 2, True, away_total, home_total) + 10
+    kw = dict(large=large, compact=compact)
+    y = score_header(s, x, y, cw, 2, True, away_total, home_total, **kw) + gap
     if state == "running":
-        y = clock_card(s, x, y, cw, "Top 2", "2:47", 0.443, "running") + 10
+        y = clock_card(s, x, y, cw, "Top 2", "2:47", 0.443, "running", **kw) + gap
     else:
-        y = clock_card(s, x, y, cw, "Top 2", "0:00", 1.0, "timeup", next_label="Start Bottom 2") + 10
-    y = tally_bar(s, x, y, cw, "Top 2 – Hawks batting", half[0], half[1], AWAY) + 10
-    scoring_pad(s, x, y, cw, (h - 83 - 8) - y)
+        y = clock_card(s, x, y, cw, "Top 2", "0:00", 1.0, "timeup", next_label="Start Bottom 2", **kw) + gap
+    y = tally_bar(s, x, y, cw, "Top 2 – Hawks batting", half[0], half[1], AWAY, **kw) + gap
+    scoring_pad(s, x, y, cw, (h - 83 - 6) - y, large=large, compact=compact)
     tab_bar(s, w, h, 0)
 
 
-def iphone_final(s):
-    w, h = IPH_W, IPH_H
+def iphone_final(s, w=IPH_W, h=IPH_H):
     s.rect(0, 0, w, h, 0, fill=BLACK)
     status_bar(s, w)
     nav_bar(s, w, 50, "Final", left="Close", right=None)
@@ -392,6 +408,8 @@ def iphone_final(s):
 
 # ---------------------------------------------------------------- iPad screen
 IPAD_W, IPAD_H = 1032, 1376   # iPad Pro 13" logical portrait
+DUO_OUT_W, DUO_OUT_H = 466, 678    # iPhone Duo outer screen (1398x2034 @3x)
+DUO_IN_W, DUO_IN_H = 669, 951      # iPhone Duo inner screen (2007x2853 @3x)
 
 
 def ipad_live(s):
@@ -458,6 +476,10 @@ def marketing(W, H, headline, sub, draw, logical, name, kind="phone"):
     k = W / 1320  # layout scale relative to the 6.9" design
     if kind == "pad":
         k = W / 2064 * 1.15
+    if kind == "duo_inner":
+        k = W / 2007 * 1.25
+    if kind == "duo_outer":
+        k = W / 1398 * 0.95
     def fit(kind, px):  # shrink to keep a margin either side
         while d.textlength(text_, font=font(kind, px * SS)) > W * SS * 0.88 and px > 10:
             px -= 1
@@ -469,11 +491,11 @@ def marketing(W, H, headline, sub, draw, logical, name, kind="phone"):
     top = 350 * k
     avail_h = H - top - 40 * k
     ratio = logical[1] / logical[0]
-    fw = min(W * (0.80 if kind == "phone" else 0.86), (avail_h) / ratio * 1.0)
+    fw = min(W * (0.86 if kind == "pad" else 0.80), (avail_h) / ratio * 1.0)
     fh = fw * ratio
     fx0 = (W - fw) / 2
     fy0 = top + (avail_h - fh) / 2 + 10 * k
-    rad = (fw * (0.13 if kind == "phone" else 0.045))
+    rad = fw * {"phone": 0.13, "pad": 0.045, "duo_outer": 0.11, "duo_inner": 0.06}[kind]
     device_frame(img, [fx0 * SS, fy0 * SS, (fx0 + fw) * SS, (fy0 + fh) * SS], int(rad * SS), draw, logical)
     img = img.resize((W, H), Image.LANCZOS)
     img.save(os.path.join(OUT, name), optimize=True)
@@ -575,6 +597,19 @@ if __name__ == "__main__":
                       (1206, 2622, "iphone63"), (1179, 2556, "iphone61"), (886, 1920, "iphone_preview")):
         for key, hl, sub, fn in SHOTS:
             made.append(marketing(W, H, hl, sub, fn, (IPH_W, IPH_H), f"{tag}_{key}_{W}x{H}.png"))
+    # iPhone Duo – outer (folded) and inner (unfolded) screens, with the layouts the app uses there
+    duo_sets = [
+        ("duo_outer", 1398, 2034, DUO_OUT_W, DUO_OUT_H, "compact", "duo_outer"),
+        ("duo_inner", 2007, 2853, DUO_IN_W, DUO_IN_H, "regular", "duo_inner"),
+    ]
+    for tag, W, H, lw, lh, mode, kind in duo_sets:
+        shots = [
+            ("1_scoring", SHOTS[0][1], SHOTS[0][2], lambda s, lw=lw, lh=lh, mode=mode: iphone_live(s, "running", lw, lh, mode)),
+            ("2_timeup", SHOTS[1][1], SHOTS[1][2], lambda s, lw=lw, lh=lh, mode=mode: iphone_live(s, "timeup", lw, lh, mode)),
+            ("3_result", SHOTS[2][1], SHOTS[2][2], lambda s, lw=lw, lh=lh: iphone_final(s, lw, lh)),
+        ]
+        for key, hl, sub_, fn in shots:
+            made.append(marketing(W, H, hl, sub_, fn, (lw, lh), f"{tag}_{key}_{W}x{H}.png", kind=kind))
     made.append(marketing(2064, 2752, "Built for the scorer's table.", "Big clock · big buttons · live line score",
                           ipad_live, (IPAD_W, IPAD_H), "ipad13_1_scoring_2064x2752.png", kind="pad"))
     made.append(make_watch(watch_scoring, "watch_1_scoring_422x514.png"))

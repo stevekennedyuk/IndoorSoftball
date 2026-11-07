@@ -7,6 +7,8 @@ struct ScoringPad: View {
     let size: PanelSize
 
     private var digitFont: CGFloat { size == .large ? 64 : (size == .regular ? 50 : 40) }
+    /// HR / Undo row height; +1 and −1 take all the remaining height.
+    private var hrRowHeight: CGFloat { size == .large ? 110 : (size == .regular ? 80 : 48) }
 
     var body: some View {
         if let g = store.game {
@@ -20,8 +22,7 @@ struct ScoringPad: View {
                         store.record(.adjustMinus)
                     }
                 }
-                .frame(minHeight: 72, maxHeight: .infinity)
-                .layoutPriority(2)
+                .frame(minHeight: size == .compact ? 62 : 72, maxHeight: .infinity)
 
                 HStack(spacing: size == .compact ? 8 : 10) {
                     bigButton(title: "HR \(hr.signedString)", subtitle: "Home Run", symbol: "star.fill",
@@ -41,8 +42,7 @@ struct ScoringPad: View {
                     .disabled(!store.canUndo)
                     .accessibilityLabel("Undo last")
                 }
-                .frame(minHeight: 50, maxHeight: size == .large ? 130 : 96)
-                .layoutPriority(1)
+                .frame(height: hrRowHeight)
             }
         }
     }

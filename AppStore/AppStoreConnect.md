@@ -105,9 +105,21 @@ Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `Ap
 | iPhone 6.3" Display (1206 × 2622) | `iphone63_1_scoring`, `iphone63_2_timeup`, `iphone63_3_result` |
 | iPhone 6.1" Display (1179 × 2556) | `iphone61_1_scoring`, `iphone61_2_timeup`, `iphone61_3_result` |
 | iPhone 886 × 1920 | `iphone_preview_1_scoring`, `iphone_preview_2_timeup`, `iphone_preview_3_result` |
+| **iPhone Duo, outer screen** (1398 × 2034) | `duo_outer_1_scoring`, `duo_outer_2_timeup`, `duo_outer_3_result` |
+| **iPhone Duo, inner screen** (2007 × 2853) | `duo_inner_1_scoring`, `duo_inner_2_timeup`, `duo_inner_3_result` |
 | iPad 13" Display (2064 × 2752) | `ipad13_1_scoring` |
 | Apple Watch (422 × 514, Ultra) | `watch_1_scoring`, `watch_2_clock` |
 | App icon (1024 × 1024, opaque) | `appstore_icon_1024x1024.png`. It's the same picture as the Xcode AppIcon; App Store Connect and TestFlight take the icon from the build, so this copy is for the website or press. |
+
+### iPhone Duo
+
+- From **April 2027**, every app submission must include iPhone Duo screenshots. Supplying them now also adds the "optimised for iPhone Duo" badge to the product page.
+- Duo App Previews (videos) are 886 × 1920 portrait or 1920 × 886 landscape. Apple currently requires that size even though it doesn't match the shape of either Duo screen.
+- To get the app full-screen on the Duo, build with **Xcode 27.1 or later** (iOS 27.1 SDK). Apps built with older Xcode run on the Duo at a smaller, fixed size. Test it in the iPhone Duo simulator in Device Hub: fold and unfold the device, and rotate it.
+- The app picks its layout from the space available, so it adjusts as soon as the Duo is folded or unfolded:
+  - Outer screen: the compact single column.
+  - Inner screen: the regular single column, with large +1 / −1 buttons.
+  - On its side: two columns.
 
 ## Upload checklist
 

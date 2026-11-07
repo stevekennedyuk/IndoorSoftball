@@ -1,17 +1,21 @@
 import SwiftUI
 
-/// Live scoring, laid out to fit the screen without scrolling.
-/// - iPhone portrait: scoreboard, clock, tallies, then the +1 / −1 / HR buttons,
-///   which stretch to fill the remaining height.
-/// - iPad, or iPhone landscape: scoreboard + clock (+ line score on iPad) on the
-///   left, tallies + buttons on the right.
+/// Live scoring, laid out to fit the screen without scrolling. The layout is
+/// chosen from the space actually available (not the device type), so it
+/// adapts to iPhone, iPad, iPhone Duo (folded and unfolded) and rotation:
+/// - Wide and tall enough (iPad, ≥ 900 × 600 pt): two columns at large size – scoreboard,
+///   a clock that fills the column and the line score on the left; tallies and
+///   buttons on the right.
+/// - Landscape otherwise (iPhone / Duo on its side): two compact columns.
+/// - Portrait: one column – scoreboard, clock, tallies, then +1 / −1 (which take
+///   all the spare height) above HR / Undo. Large size on tall, wide screens
+///   (≥ 600 × 900 pt: iPad mini / 11″ portrait); compact when short (< 540 pt,
+///   e.g. the iPhone Duo's outer screen); regular otherwise (iPhones, Duo unfolded).
 /// Moving to the next half is done from the clock: once time is up its main
 /// button becomes "Start Bottom 1" (or "End Game"). Ending a half early is in
 /// the ⋯ menu.
 struct LiveGameView: View {
     @Environment(GameStore.self) private var store
-    @Environment(\.horizontalSizeClass) private var hSize
-    @Environment(\.verticalSizeClass) private var vSize
     let newGame: () -> Void
 
     @State private var confirmEndHalf = false
@@ -19,45 +23,70 @@ struct LiveGameView: View {
     @State private var confirmDiscard = false
     @State private var showScores = false
 
-    private var isPad: Bool { hSize == .regular && vSize == .regular }
-    private var twoColumns: Bool { hSize == .regular || vSize == .compact }
+    enum Layout: Equatable {
+        case wide                 // two columns, large
+        case landscape            // two columns, compact
+        case column(PanelSize)    // single column
+    }
+
+    static func layout(for size: CGSize) -> Layout {
+        if size.width >= 900 && size.height >= 600 { return .wide }
+        if size.width > size.height { return .landscape }
+        if size.width >= 600 && size.height >= 900 { return .column(.large) }
+        if size.height < 540 { return .column(.compact) }
+        return .column(.regular)
+    }
 
     var body: some View {
-        Group {
-            if twoColumns {
-                HStack(alignment: .top, spacing: isPad ? 20 : 12) {
-                    VStack(spacing: isPad ? 16 : 8) {
-                        ScoreHeader(size: isPad ? .large : .compact)
-                        // On iPad the clock grows to fill the column (big digits for the scorer's table).
-                        ClockCard(size: isPad ? .large : .compact, expand: isPad)
-                        if isPad { lineScoreCard } else { Spacer(minLength: 0) }
+        GeometryReader { geo in
+            switch Self.layout(for: geo.size) {
+            case .wide:
+                HStack(alignment: .top, spacing: 20) {
+                    VStack(spacing: 16) {
+                        ScoreHeader(size: .large)
+                        // The clock grows to fill the column (big digits for the scorer's table).
+                        ClockCard(size: .large, expand: true)
+                        lineScoreCard
                     }
-                    VStack(spacing: isPad ? 16 : 8) {
-                        HalfTallyBar(size: isPad ? .large : .compact)
-                        ScoringPad(size: isPad ? .large : .compact)
+                    VStack(spacing: 16) {
+                        HalfTallyBar(size: .large)
+                        ScoringPad(size: .large)
                     }
-                    .frame(maxWidth: isPad ? 560 : .infinity)
+                    .frame(maxWidth: 560)
                 }
-                .padding(isPad ? 20 : 10)
-            } else {
-                VStack(spacing: 10) {
-                    ScoreHeader(size: .regular)
-                    ClockCard(size: .regular)
-                    HalfTallyBar(size: .regular)
-                    ScoringPad(size: .regular)
+                .padding(20)
+            case .landscape:
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(spacing: 8) {
+                        ScoreHeader(size: .compact)
+                        ClockCard(size: .compact)
+                        Spacer(minLength: 0)
+                    }
+                    VStack(spacing: 8) {
+                        HalfTallyBar(size: .compact)
+                        ScoringPad(size: .compact)
+                    }
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
+                .padding(10)
+            case .column(let size):
+                VStack(spacing: size == .compact ? 8 : (size == .large ? 14 : 10)) {
+                    ScoreHeader(size: size)
+                    ClockCard(size: size)
+                    HalfTallyBar(size: size)
+                    ScoringPad(size: size)
+                }
+                .padding(.horizontal, size == .large ? 24 : 14)
+                .padding(.vertical, size == .compact ? 6 : 8)
+                .frame(maxWidth: size == .large ? 720 : .infinity)
+                .frame(maxWidth: .infinity)
             }
         }
         .navigationTitle(store.game?.current.label ?? "Game")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if !isPad {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showScores = true } label: {
-                        Label("Scores", systemImage: "tablecells")
-                    }
+            ToolbarItem(placement: .topBarLeading) {
+                Button { showScores = true } label: {
+                    Label("Scores", systemImage: "tablecells")
                 }
             }
             ToolbarItem(placement: .topBarTrailing) { menu }
@@ -281,7 +310,7 @@ struct ClockCard: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Theme.negative)
-                    .controlSize(.large)
+                    .controlSize(size == .compact ? .regular : .large)
                 } else {
                     HStack(spacing: 10) {
                         Button { store.addTime(-30) } label: {
