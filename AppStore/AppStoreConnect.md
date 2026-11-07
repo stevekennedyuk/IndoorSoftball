@@ -102,6 +102,9 @@ Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `Ap
 |---|---|
 | iPhone 6.9" Display (1320 × 2868) | `iphone69_1_scoring`, `iphone69_2_timeup`, `iphone69_3_result` |
 | iPhone 6.5" Display (1242 × 2688), optional if 6.9" is supplied | `iphone65_1_scoring`, `iphone65_2_timeup`, `iphone65_3_result` |
+| iPhone 6.3" Display (1206 × 2622) | `iphone63_1_scoring`, `iphone63_2_timeup`, `iphone63_3_result` |
+| iPhone 6.1" Display (1179 × 2556) | `iphone61_1_scoring`, `iphone61_2_timeup`, `iphone61_3_result` |
+| iPhone 886 × 1920 | `iphone_preview_1_scoring`, `iphone_preview_2_timeup`, `iphone_preview_3_result` |
 | iPad 13" Display (2064 × 2752) | `ipad13_1_scoring` |
 | Apple Watch (422 × 514, Ultra) | `watch_1_scoring`, `watch_2_clock` |
 | App icon (1024 × 1024, opaque) | `appstore_icon_1024x1024.png`. It's the same picture as the Xcode AppIcon; App Store Connect and TestFlight take the icon from the build, so this copy is for the website or press. |

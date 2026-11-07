@@ -7,6 +7,9 @@ views) under a marketing headline, at the sizes App Store Connect accepts:
 
     iPhone 6.9"   1320 x 2868   (required set – "iPhone 6.9-inch Display")
     iPhone 6.5"   1242 x 2688   (accepted alternative)
+    iPhone 6.3"   1206 x 2622   (asked for by App Store Connect)
+    iPhone 6.1"   1179 x 2556   (asked for by App Store Connect)
+    iPhone         886 x 1920   (app-preview size slot)
     iPad 13"      2064 x 2752   ("iPad 13-inch Display")
     Apple Watch    422 x  514   (Ultra size – raw screens, no headline)
     App icon      1024 x 1024   (App Store / TestFlight icon, opaque RGB)
@@ -568,7 +571,8 @@ SHOTS = [
 
 if __name__ == "__main__":
     made = []
-    for W, H, tag in ((1320, 2868, "iphone69"), (1242, 2688, "iphone65")):
+    for W, H, tag in ((1320, 2868, "iphone69"), (1242, 2688, "iphone65"),
+                      (1206, 2622, "iphone63"), (1179, 2556, "iphone61"), (886, 1920, "iphone_preview")):
         for key, hl, sub, fn in SHOTS:
             made.append(marketing(W, H, hl, sub, fn, (IPH_W, IPH_H), f"{tag}_{key}_{W}x{H}.png"))
     made.append(marketing(2064, 2752, "Built for the scorer's table.", "Big clock · big buttons · live line score",
