@@ -99,7 +99,10 @@ struct Game: Codable, Identifiable, Equatable, Sendable {
     /// The half currently open for scoring.
     var currentIndex: Int = 0
     var phase: Phase = .inProgress
+    /// When the game was set up (New Game tapped).
     var startedAt: Date
+    /// When play actually started: the first time the clock was started.
+    var playStartedAt: Date? = nil
     var endedAt: Date? = nil
     /// "iPhone", "iPad", "Watch" — where it was scored.
     var scoredOn: String = ""

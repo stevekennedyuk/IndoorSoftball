@@ -4,7 +4,9 @@ extension Game {
     /// Plain-text report for sharing (Messages, WhatsApp, email…).
     var textReport: String {
         var lines: [String] = []
-        lines.append("Indoor Softball – \(startedAt.formatted(date: .abbreviated, time: .shortened))")
+        lines.append("Indoor Softball – \(awayName) v \(homeName)")
+        lines.append("Play started: \(playStart.formatted(date: .abbreviated, time: .shortened))")
+        if let end = endedAt { lines.append("Finished: \(end.formatted(date: .omitted, time: .shortened))") }
         lines.append(isFinished ? resultText : "In progress (\(current.label))")
         lines.append("")
         lines.append("\(awayName): \(total(.away).scoreString)   \(homeName): \(total(.home).scoreString)")

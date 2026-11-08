@@ -37,6 +37,17 @@ struct SettingsScreen: View {
                 }
             }
             SettingsSections(settings: $store.settings)
+            Section {
+                TextField("Send results to (optional email)", text: $store.settings.resultsEmail)
+                    .keyboardType(.emailAddress)
+                    .textContentType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+            } header: {
+                Text("Results")
+            } footer: {
+                Text("Every finished game is saved as a spreadsheet (CSV) file in Files → On My iPhone/iPad → Indoor Softball. Email results fills in this address, e.g. your league's results inbox.")
+            }
             Section("About") {
                 NavigationLink {
                     AboutView()
@@ -75,6 +86,8 @@ struct SettingsScreen: View {
 
 struct HistoryView: View {
     @Environment(GameStore.self) private var store
+    @State private var pendingDelete: Set<UUID> = []
+    @State private var confirmDelete = false
 
     var body: some View {
         Group {
@@ -86,19 +99,34 @@ struct HistoryView: View {
                 List {
                     ForEach(store.history) { game in
                         NavigationLink {
-                            GameDetailView(game: game)
+                            GameDetailView(gameID: game.id)
                         } label: {
                             HistoryRow(game: game)
                         }
                     }
                     .onDelete { offsets in
-                        store.deleteHistory(ids: Set(offsets.map { store.history[$0].id }))
+                        pendingDelete = Set(offsets.map { store.history[$0].id })
+                        confirmDelete = true
                     }
                 }
             }
         }
         .navigationTitle("History")
         .toolbar { if !store.history.isEmpty { EditButton() } }
+        .confirmationDialog(pendingDelete.count == 1 ? "Delete this game?" : "Delete \(pendingDelete.count) games?",
+                            isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Delete game and results file", role: .destructive) {
+                store.deleteHistory(ids: pendingDelete, deleteFiles: true)
+                pendingDelete = []
+            }
+            Button("Delete from History, keep file") {
+                store.deleteHistory(ids: pendingDelete, deleteFiles: false)
+                pendingDelete = []
+            }
+            Button("Cancel", role: .cancel) { pendingDelete = [] }
+        } message: {
+            Text("Results files are in Files → On My iPhone/iPad → Indoor Softball.")
+        }
     }
 }
 
@@ -114,7 +142,7 @@ private struct HistoryRow: View {
             }
             .font(.headline)
             HStack(spacing: 6) {
-                Text(game.startedAt.formatted(date: .abbreviated, time: .shortened))
+                Text(game.playStart.formatted(date: .abbreviated, time: .shortened))
                 if !game.scoredOn.isEmpty { Text("· \(game.scoredOn)") }
                 if game.winner == nil && game.isFinished { Text("· tie") }
             }
@@ -136,19 +164,41 @@ private struct HistoryRow: View {
 }
 
 struct GameDetailView: View {
-    let game: Game
+    @Environment(GameStore.self) private var store
+    let gameID: UUID
+    @State private var sender = ResultsSender()
+    @State private var renaming = false
 
     var body: some View {
-        ScrollView {
-            GameSummaryView(game: game)
+        if let game = store.history.first(where: { $0.id == gameID }) {
+            ScrollView {
+                VStack(spacing: 16) {
+                    GameSummaryView(game: game)
+                    Button {
+                        sender.email(game, to: store.settings.resultsEmail)
+                    } label: {
+                        Label("Email results", systemImage: "envelope.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Theme.away)
+                    .controlSize(.large)
+                }
                 .padding()
                 .frame(maxWidth: 900)
                 .frame(maxWidth: .infinity)
-        }
-        .navigationTitle("\(game.awayName) v \(game.homeName)")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ShareLink(item: game.textReport) { Image(systemName: "square.and.arrow.up") }
+            }
+            .navigationTitle("\(game.awayName) v \(game.homeName)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ResultsMenu(game: game, sender: sender, renaming: $renaming)
+                }
+            }
+            .resultsSheets(sender)
+            .renameTeamsAlert(game: game, isPresented: $renaming)
+        } else {
+            ContentUnavailableView("Game deleted", systemImage: "trash")
         }
     }
 }

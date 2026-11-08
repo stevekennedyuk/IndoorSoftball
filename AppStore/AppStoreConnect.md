@@ -30,7 +30,7 @@ Upload `Website/indoor-softball/` to the web root so both pages resolve before y
 
 ## App Privacy (App Store Connect → App Privacy)
 
-**Data Not Collected.** The app has no accounts, analytics, ads or network calls. Games and settings stay on the device; the only transfer is between the user's own iPhone and Apple Watch via WatchConnectivity. `PrivacyInfo.xcprivacy` is in both targets: no tracking, no collected data, no required-reason APIs.
+**Data Not Collected.** The app has no accounts, analytics, ads or network calls. Finished games are saved as CSV files on the device, in the Files app under On My iPhone → Indoor Softball. "Email results" and the share sheet send them only when the user chooses, and only to recipients the user picks. Apple doesn't count that as collection, because NetTek never receives the data. Games and settings stay on the device; the only transfer is between the user's own iPhone and Apple Watch via WatchConnectivity. `PrivacyInfo.xcprivacy` is in both targets: no tracking, no collected data, no required-reason APIs.
 
 ## Export compliance
 
@@ -59,6 +59,11 @@ SIMPLE SCORING
 • HR adds a home run off the back wall (+5 by default, adjustable – +4 for the outdoor variant)
 • Plus, Minus and Total tallies for every half inning, right under the buttons
 
+RESULTS YOU CAN SEND
+• Every game saved as a spreadsheet file named with the date and teams
+• Email results in one tap, with the scoresheet attached
+• Find past games in the Files app or in History
+
 CLEAR RESULTS
 • A plus and minus tally for every half inning; scores can go negative
 • Running score at the end of each inning, final score and winner (−5 beats −10)
@@ -82,7 +87,8 @@ Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple
 
 **What to Test (build 3)**
 - Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, HR +5.
-- New in build 3: the layout is chosen from the screen space (please test iPhone Duo folded/unfolded, iPad mini/11″/13″ and rotation), and the HR row has a fixed height so +1 / −1 are always the biggest buttons.
+- New in build 4: enter the team names at New Game. The time play starts is recorded when the clock is first started. Finished games are saved as CSV files (Files → On My iPhone → Indoor Softball), and Email results opens Mail with the scoresheet attached, or the share sheet if Mail isn't set up. History can rename teams and email a game again. Watch games are Away v Home.
+- Build 3: the layout is chosen from the screen space (please test iPhone Duo folded/unfolded, iPad mini/11″/13″ and rotation), and the HR row has a fixed height so +1 / −1 are always the biggest buttons.
 - Since build 1: the About screen (Settings → About), the larger iPad clock, and the clock stopping at 0:00.
 - Start the clock and score with +1, −1 and HR. Check the Plus, Minus and Total tallies and Undo.
 - Let the clock run out. You should get the red flashing TIME, haptics and a sound, and you should still be able to enter scores until you tap "Start Bottom 1" on the clock, which locks the half and starts the next clock.
@@ -121,6 +127,10 @@ Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `Ap
   - Outer screen: the compact single column.
   - Inner screen: the regular single column, with large +1 / −1 buttons.
   - On its side: two columns.
+
+## Notes for review (App Store Connect → App Review Information)
+
+> No sign-in is required. To try every feature: Game → New Game → Start clock → tap +1 / −1 / HR → when time is up, tap Start Bottom 1, and so on → End Game. On the final screen, tap **Email results**. It opens Mail with the scoresheet attached, or the share sheet if no Mail account is set up on the device. Results files are also visible in Files → On My iPhone → Indoor Softball. Nothing is sent anywhere unless the user chooses to.
 
 ## Upload checklist
 

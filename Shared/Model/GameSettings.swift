@@ -26,6 +26,8 @@ struct GameSettings: Codable, Equatable, Sendable {
     /// Last-used team names, offered again for the next game.
     var awayName: String = "Away"
     var homeName: String = "Home"
+    /// Optional address "Email results" fills in (e.g. the league's results inbox).
+    var resultsEmail: String = ""
 
     // MARK: Limits used by steppers
 
@@ -66,7 +68,7 @@ struct GameSettings: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case innings, halfInningSeconds, pointsPerBase, homeRunPoints, runPoints
-        case outPoints, outAtHomeByCatcherPoints, warningSeconds, awayName, homeName
+        case outPoints, outAtHomeByCatcherPoints, warningSeconds, awayName, homeName, resultsEmail
     }
 
     init() {}
@@ -84,6 +86,7 @@ struct GameSettings: Codable, Equatable, Sendable {
         warningSeconds = try c.decodeIfPresent(Int.self, forKey: .warningSeconds) ?? d.warningSeconds
         awayName = try c.decodeIfPresent(String.self, forKey: .awayName) ?? d.awayName
         homeName = try c.decodeIfPresent(String.self, forKey: .homeName) ?? d.homeName
+        resultsEmail = try c.decodeIfPresent(String.self, forKey: .resultsEmail) ?? d.resultsEmail
     }
 
     /// Clamps every value into its allowed range.
@@ -98,6 +101,7 @@ struct GameSettings: Codable, Equatable, Sendable {
         s.outPoints = s.outPoints.clamped(to: Self.outRange)
         s.outAtHomeByCatcherPoints = s.outAtHomeByCatcherPoints.clamped(to: Self.outRange)
         s.warningSeconds = s.warningSeconds.clamped(to: Self.warningRange)
+        s.resultsEmail = s.resultsEmail.trimmingCharacters(in: .whitespacesAndNewlines)
         return s
     }
 }

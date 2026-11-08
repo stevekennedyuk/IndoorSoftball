@@ -67,7 +67,7 @@ struct GameSummaryView: View {
 
     private var footer: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Started \(game.startedAt.formatted(date: .abbreviated, time: .shortened))")
+            Text("Play started \(game.playStart.formatted(date: .abbreviated, time: .shortened))")
             if let end = game.endedAt {
                 Text("Finished \(end.formatted(date: .omitted, time: .shortened))")
             }

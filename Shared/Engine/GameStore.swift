@@ -50,6 +50,13 @@ final class GameStore {
     @ObservationIgnored var onSettingsChanged: ((GameSettings) -> Void)?
     /// Called when a game is finished (to send it to the paired device).
     @ObservationIgnored var onGameFinished: ((Game) -> Void)?
+    /// Called whenever a finished game is added to History – locally or from the
+    /// paired device – so the iPhone/iPad app can save its results file.
+    @ObservationIgnored var onGameArchived: ((Game) -> Void)?
+    /// Called when a finished game's team names are changed (old, new).
+    @ObservationIgnored var onGameRenamed: ((Game, Game) -> Void)?
+    /// Called when games are removed from History; Bool = also delete their files.
+    @ObservationIgnored var onGamesDeleted: (([Game], Bool) -> Void)?
 
     @ObservationIgnored private var ticker: Timer?
     @ObservationIgnored private var warnedHalf: Int?
@@ -130,12 +137,18 @@ final class GameStore {
     // MARK: Game lifecycle
 
     /// Starts a new game with the current settings (which are remembered for next time).
-    func newGame(awayName: String? = nil, homeName: String? = nil, at date: Date = Date()) {
-        if let away = awayName { settings.awayName = away }
-        if let home = homeName { settings.homeName = home }
+    /// `rememberNames: false` (the Watch) uses the names for this game only,
+    /// without changing the names remembered in Settings.
+    func newGame(awayName: String? = nil, homeName: String? = nil, rememberNames: Bool = true, at date: Date = Date()) {
+        if rememberNames {
+            if let away = awayName { settings.awayName = away }
+            if let home = homeName { settings.homeName = home }
+        }
         settings = settings.sanitized()
         // A finished game on screen is already in history; an unfinished one is abandoned.
-        game = Game(settings: settings, awayName: settings.awayName, homeName: settings.homeName,
+        game = Game(settings: settings,
+                    awayName: awayName ?? settings.awayName,
+                    homeName: homeName ?? settings.homeName,
                     at: date, scoredOn: deviceName)
         warnedHalf = nil
         timeUpHalf = nil
@@ -161,6 +174,7 @@ final class GameStore {
 
     func startClock(at date: Date = Date()) {
         guard var g = game, !g.isFinished else { return }
+        if g.playStartedAt == nil { g.playStartedAt = date }
         g.halves[g.currentIndex].timer.start(at: date)
         game = g
         now = date
@@ -278,12 +292,32 @@ final class GameStore {
     private func upsertHistory(_ g: Game) {
         var h = history.filter { $0.id != g.id }
         h.append(g)
-        h.sort { $0.startedAt > $1.startedAt }
+        h.sort { $0.playStart > $1.playStart }
         history = h
+        onGameArchived?(g)
     }
 
-    func deleteHistory(ids: Set<UUID>) {
+    /// Removes games from History; `deleteFiles` also removes their results files.
+    func deleteHistory(ids: Set<UUID>, deleteFiles: Bool = false) {
+        let removed = history.filter { ids.contains($0.id) }
         history.removeAll { ids.contains($0.id) }
+        onGamesDeleted?(removed, deleteFiles)
+    }
+
+    /// Changes the team names of a finished game (e.g. one scored on the Watch as
+    /// Away v Home). Its results file is renamed to match.
+    func renameTeams(gameID: UUID, away: String, home: String) {
+        let a = away.trimmingCharacters(in: .whitespaces)
+        let h = home.trimmingCharacters(in: .whitespaces)
+        guard let i = history.firstIndex(where: { $0.id == gameID }) else { return }
+        let old = history[i]
+        var new = old
+        new.awayName = a.isEmpty ? "Away" : a
+        new.homeName = h.isEmpty ? "Home" : h
+        guard new != old else { return }
+        history[i] = new
+        if game?.id == gameID { game = new }
+        onGameRenamed?(old, new)
     }
 
     // MARK: Sync from the paired device

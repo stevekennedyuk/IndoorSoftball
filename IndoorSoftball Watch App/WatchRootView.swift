@@ -61,34 +61,34 @@ struct WatchStartView: View {
     }
 }
 
+/// New game on the Watch: always Away v Home (rename it later in History on the
+/// iPhone, which also renames the saved results file).
 struct WatchNewGameView: View {
     @Environment(GameStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    @State private var away = ""
-    @State private var home = ""
 
     var body: some View {
         Form {
-            Section("Teams") {
-                TextField("Away", text: $away)
-                TextField("Home", text: $home)
-            }
             Section {
+                HStack {
+                    Text("Away").foregroundStyle(Theme.away)
+                    Text("v").foregroundStyle(.secondary)
+                    Text("Home").foregroundStyle(Theme.home)
+                }
+                .font(.headline)
                 Text("\(store.settings.innings) innings · \(Theme.duration(store.settings.halfInningSeconds)) halves")
                     .font(.footnote)
                 Button {
-                    store.newGame(awayName: away, homeName: home)
+                    store.newGame(awayName: "Away", homeName: "Home", rememberNames: false)
                     dismiss()
                 } label: {
                     Label("Start", systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .listItemTint(Theme.positive)
+            } footer: {
+                Text("Add team names afterwards in History on your iPhone.")
             }
-        }
-        .onAppear {
-            away = store.settings.awayName
-            home = store.settings.homeName
         }
     }
 }
