@@ -73,7 +73,7 @@ struct TeamNameSection: View {
         Section("Location") {
             HStack {
                 Image(systemName: "mappin.and.ellipse").foregroundStyle(.secondary)
-                TextField("Venue (optional)", text: $location)
+                TextField("Location (optional)", text: $location)
             }
         }
     }

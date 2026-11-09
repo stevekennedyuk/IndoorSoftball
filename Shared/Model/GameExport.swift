@@ -7,6 +7,13 @@ extension Game {
     /// back to when the game was set up if the clock was never started.
     var playStart: Date { playStartedAt ?? startedAt }
 
+    /// The location, or "Location" if none was entered (like "Home" / "Away"
+    /// for team names left blank).
+    var place: String {
+        if let loc = location, !loc.isEmpty { return loc }
+        return "Location"
+    }
+
     /// Scored on the Apple Watch.
     var isFromWatch: Bool { scoredOn == "Watch" }
 
@@ -19,13 +26,13 @@ extension Game {
     // MARK: File name
 
     /// home-away-location-date&time, e.g.
-    /// "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt"
-    /// (the location part is left out if no location was entered).
+    /// "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt", or
+    /// "Home-Away-Location-2026-11-08 1930.txt" if nothing was entered.
     var exportFileName: String {
-        var parts = [Self.fileSafe(homeName), Self.fileSafe(awayName)]
-        if let loc = location, !loc.isEmpty { parts.append(Self.fileSafe(loc, fallback: "Location")) }
-        parts.append(Self.stamp(playStart, "yyyy-MM-dd HHmm"))
-        return parts.joined(separator: "-") + ".txt"
+        [Self.fileSafe(homeName, fallback: "Home"),
+         Self.fileSafe(awayName, fallback: "Away"),
+         Self.fileSafe(place, fallback: "Location"),
+         Self.stamp(playStart, "yyyy-MM-dd HHmm")].joined(separator: "-") + ".txt"
     }
 
     /// Removes characters that aren't allowed (or are awkward) in file names.
@@ -55,8 +62,7 @@ extension Game {
     /// Subject line apps such as Mail use when the file is shared, e.g.
     /// "Indoor Softball: Hawks 16 – Owls 17, Hackney Leisure Centre (8 Nov 2026, 19:30)"
     var shareSubject: String {
-        let place = (location?.isEmpty == false) ? ", \(location!)" : ""
-        return "Indoor Softball: \(awayName) \(total(.away).scoreString) – \(homeName) \(total(.home).scoreString)\(place) (\(Self.stamp(playStart, "d MMM yyyy, HH:mm")))"
+        "Indoor Softball: \(awayName) \(total(.away).scoreString) – \(homeName) \(total(.home).scoreString), \(place) (\(Self.stamp(playStart, "d MMM yyyy, HH:mm")))"
     }
 
     /// Message shared alongside the file: the results document itself.
@@ -79,15 +85,13 @@ extension Game {
     ///     Owls: 17
     ///
     /// Each inning line is that team's plus, minus and total for the inning.
-    /// The location is left out of the first line if none was entered, and a
-    /// half that wasn't played (game ended early) shows "not played".
+    /// Blank names / location appear as Away, Home and Location. A half that
+    /// wasn't played (game ended early) shows "not played".
     var resultsDocument: String {
         func plus(_ v: Int) -> String { "+\(v)" }
         func minus(_ v: Int) -> String { v == 0 ? "-0" : "-\(-v)" }
-        var header = ["\(awayName) vs \(homeName)"]
-        if let loc = location, !loc.isEmpty { header.append(loc) }
-        header.append(Self.stamp(playStart, "dd/MM/yyyy"))
-        header.append(Self.stamp(playStart, "HH:mm"))
+        let header = ["\(awayName) vs \(homeName)", place,
+                      Self.stamp(playStart, "dd/MM/yyyy"), Self.stamp(playStart, "HH:mm")]
 
         var lines = [header.joined(separator: " : ")]
         for inning in 1...max(1, inningsCount) {

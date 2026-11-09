@@ -32,7 +32,7 @@ The end-of-game summary shows final scores, the winner, the line score, and for 
 
 - **New Game details:** Home and Away team names and an optional **Location**. All three are remembered for the next game.
 - **Start time:** the time play starts is the first time the clock is started.
-- **File:** every finished game is saved as a text document in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is **home-away-location-date&time**, e.g. `Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt`; the location part is left out if none was entered. The layout is:
+- **File:** every finished game is saved as a text document in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is **home-away-location-date&time**, e.g. `Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt`; any name or location left blank becomes Home, Away or Location, e.g. `Home-Away-Location-2026-11-08 1930.txt`. The layout is:
 
   ```
   Hawks vs Owls : Hackney Leisure Centre : 08/11/2026 : 19:30

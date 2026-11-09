@@ -5,7 +5,7 @@ extension Game {
     var textReport: String {
         var lines: [String] = []
         lines.append("Indoor Softball – \(awayName) v \(homeName)")
-        if let loc = location, !loc.isEmpty { lines.append("Location: \(loc)") }
+        lines.append("Location: \(place)")
         lines.append("Play started: \(playStart.formatted(date: .abbreviated, time: .shortened))")
         if let end = endedAt { lines.append("Finished: \(end.formatted(date: .omitted, time: .shortened))") }
         lines.append(isFinished ? resultText : "In progress (\(current.label))")
