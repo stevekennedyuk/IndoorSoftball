@@ -86,6 +86,7 @@ struct NewGameSheet: View {
     @State private var draft = GameSettings()
     @State private var away = ""
     @State private var home = ""
+    @State private var location = ""
 
     var body: some View {
         NavigationStack {
@@ -98,7 +99,7 @@ struct NewGameSheet: View {
                             .font(.footnote)
                     }
                 }
-                TeamNameSection(away: $away, home: $home)
+                TeamNameSection(away: $away, home: $home, location: $location)
                 SettingsSections(settings: $draft)
             }
             .navigationTitle("New Game")
@@ -108,7 +109,7 @@ struct NewGameSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Start") {
                         store.settings = draft
-                        store.newGame(awayName: away, homeName: home)
+                        store.newGame(awayName: away, homeName: home, location: location)
                         dismiss()
                     }
                     .fontWeight(.bold)
@@ -118,6 +119,7 @@ struct NewGameSheet: View {
                 draft = store.settings
                 away = store.settings.awayName
                 home = store.settings.homeName
+                location = store.settings.location
             }
         }
     }
@@ -137,9 +139,9 @@ private struct FinishedGameView: View {
             VStack(spacing: 16) {
                 GameSummaryView(game: game)
                 Button {
-                    sender.email(game, to: store.settings.resultsEmail)
+                    sender.share(game)
                 } label: {
-                    Label("Email results", systemImage: "envelope.fill")
+                    Label("Share results", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -171,28 +173,23 @@ private struct FinishedGameView: View {
             }
         }
         .resultsSheets(sender)
-        .renameTeamsAlert(game: game, isPresented: $renaming)
+        .gameDetailsAlert(game: game, isPresented: $renaming)
     }
 }
 
-/// ⋯ menu for a finished game: email, share the file, change team names.
+/// Menu for a finished game: share the results, edit teams / location.
 struct ResultsMenu: View {
-    @Environment(GameStore.self) private var store
     let game: Game
     let sender: ResultsSender
     @Binding var renaming: Bool
 
     var body: some View {
         Menu {
-            Button { sender.email(game, to: store.settings.resultsEmail) } label: {
-                Label("Email results", systemImage: "envelope")
+            Button { sender.share(game) } label: {
+                Label("Share results…", systemImage: "square.and.arrow.up")
             }
-            Button { sender.shareFile(game) } label: {
-                Label("Share results file…", systemImage: "square.and.arrow.up")
-            }
-            Divider()
             Button { renaming = true } label: {
-                Label("Edit team names…", systemImage: "pencil")
+                Label("Edit teams & location…", systemImage: "pencil")
             }
         } label: {
             Image(systemName: "square.and.arrow.up")

@@ -95,6 +95,8 @@ struct Game: Codable, Identifiable, Equatable, Sendable {
     var settings: GameSettings
     var awayName: String
     var homeName: String
+    /// Where the game was played (optional).
+    var location: String? = nil
     var halves: [HalfInning]
     /// The half currently open for scoring.
     var currentIndex: Int = 0
@@ -107,11 +109,14 @@ struct Game: Codable, Identifiable, Equatable, Sendable {
     /// "iPhone", "iPad", "Watch" — where it was scored.
     var scoredOn: String = ""
 
-    init(settings: GameSettings, awayName: String, homeName: String, at date: Date = Date(), scoredOn: String = "") {
+    init(settings: GameSettings, awayName: String, homeName: String, location: String? = nil,
+         at date: Date = Date(), scoredOn: String = "") {
         let s = settings.sanitized()
         self.settings = s
         self.awayName = awayName.trimmingCharacters(in: .whitespaces).isEmpty ? "Away" : awayName
         self.homeName = homeName.trimmingCharacters(in: .whitespaces).isEmpty ? "Home" : homeName
+        let loc = location?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        self.location = loc.isEmpty ? nil : loc
         self.halves = (0..<s.halvesCount).map {
             HalfInning(index: $0, timer: HalfTimer(duration: TimeInterval(s.halfInningSeconds)))
         }

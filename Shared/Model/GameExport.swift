@@ -1,7 +1,7 @@
 import Foundation
 
 /// Results export: the CSV file saved for each finished game, its file name,
-/// and the email subject/body used by "Email results".
+/// and the subject / message used when sharing it.
 extension Game {
     /// When play actually started (first time the clock was started), falling
     /// back to when the game was set up if the clock was never started.
@@ -9,17 +9,22 @@ extension Game {
 
     // MARK: File name
 
-    /// e.g. "2026-11-08 1930 Hawks v Owls.csv" – date first so files sort in order.
+    /// home-away-location-date&time, e.g.
+    /// "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.csv"
+    /// (the location part is left out if no location was entered).
     var exportFileName: String {
-        "\(Self.stamp(playStart, "yyyy-MM-dd HHmm")) \(Self.fileSafe(awayName)) v \(Self.fileSafe(homeName)).csv"
+        var parts = [Self.fileSafe(homeName), Self.fileSafe(awayName)]
+        if let loc = location, !loc.isEmpty { parts.append(Self.fileSafe(loc, fallback: "Location")) }
+        parts.append(Self.stamp(playStart, "yyyy-MM-dd HHmm"))
+        return parts.joined(separator: "-") + ".csv"
     }
 
     /// Removes characters that aren't allowed (or are awkward) in file names.
-    static func fileSafe(_ name: String) -> String {
+    static func fileSafe(_ name: String, fallback: String = "Team") -> String {
         let banned = CharacterSet(charactersIn: "/\\:?%*|\"<>\n\r\t")
         var s = name.components(separatedBy: banned).joined(separator: "-")
         s = s.trimmingCharacters(in: CharacterSet.whitespaces.union(CharacterSet(charactersIn: ".")))
-        if s.isEmpty { s = "Team" }
+        if s.isEmpty { s = fallback }
         return String(s.prefix(40)).trimmingCharacters(in: .whitespaces)
     }
 
@@ -36,15 +41,18 @@ extension Game {
         return f.string(from: date)
     }
 
-    // MARK: Email
+    // MARK: Sharing
 
-    /// e.g. "Indoor Softball: Hawks 16 – Owls 17 (8 Nov 2026, 19:30)"
-    var emailSubject: String {
-        "Indoor Softball: \(awayName) \(total(.away).scoreString) – \(homeName) \(total(.home).scoreString) (\(Self.stamp(playStart, "d MMM yyyy, HH:mm")))"
+    /// Subject line apps such as Mail use when the file is shared, e.g.
+    /// "Indoor Softball: Hawks 16 – Owls 17, Hackney Leisure Centre (8 Nov 2026, 19:30)"
+    var shareSubject: String {
+        let place = (location?.isEmpty == false) ? ", \(location!)" : ""
+        return "Indoor Softball: \(awayName) \(total(.away).scoreString) – \(homeName) \(total(.home).scoreString)\(place) (\(Self.stamp(playStart, "d MMM yyyy, HH:mm")))"
     }
 
-    var emailBody: String {
-        textReport + "\n\nThe full scoresheet is attached as a CSV file (opens in Numbers, Excel or Google Sheets).\n\nSent from Indoor Softball – nettek.uk"
+    /// Message shared alongside the file.
+    var shareMessage: String {
+        textReport + "\n\nFull scoresheet attached as a CSV file (opens in Numbers, Excel or Google Sheets).\n\nIndoor Softball – nettek.uk"
     }
 
     // MARK: CSV
@@ -62,6 +70,7 @@ extension Game {
         let a = field(awayName), h = field(homeName)
         var rows: [String] = []
         rows.append(field("Indoor Softball – \(awayName) v \(homeName)"))
+        if let loc = location, !loc.isEmpty { rows.append("Location,\(field(loc))") }
         rows.append("Play started,\(Self.stamp(playStart, "yyyy-MM-dd HH:mm"))")
         if let end = endedAt { rows.append("Finished,\(Self.stamp(end, "yyyy-MM-dd HH:mm"))") }
         rows.append("Settings,\(settings.innings) innings x \(Self.durationText(settings.halfInningSeconds)) · HR +\(settings.homeRunPoints)")

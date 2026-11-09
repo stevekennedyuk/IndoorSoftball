@@ -53,10 +53,11 @@ struct SettingsSections: View {
     }
 }
 
-/// Team name fields for a new game.
+/// Team name and location fields for a new game.
 struct TeamNameSection: View {
     @Binding var away: String
     @Binding var home: String
+    @Binding var location: String
 
     var body: some View {
         Section("Teams") {
@@ -67,6 +68,12 @@ struct TeamNameSection: View {
             HStack {
                 Circle().fill(Theme.home).frame(width: 10, height: 10)
                 TextField("Home team", text: $home)
+            }
+        }
+        Section("Location") {
+            HStack {
+                Image(systemName: "mappin.and.ellipse").foregroundStyle(.secondary)
+                TextField("Venue (optional)", text: $location)
             }
         }
     }

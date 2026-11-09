@@ -38,15 +38,12 @@ struct SettingsScreen: View {
             }
             SettingsSections(settings: $store.settings)
             Section {
-                TextField("Send results to (optional email)", text: $store.settings.resultsEmail)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                Label("Saved in Files → On My iPhone/iPad → Indoor Softball", systemImage: "folder")
+                    .font(.footnote)
             } header: {
                 Text("Results")
             } footer: {
-                Text("Every finished game is saved as a spreadsheet (CSV) file in Files → On My iPhone/iPad → Indoor Softball. Email results fills in this address, e.g. your league's results inbox.")
+                Text("Every finished game is saved as a spreadsheet (CSV) file named home-away-location-date & time. Use Share results on the final screen or in History to send it.")
             }
             Section("About") {
                 NavigationLink {
@@ -143,6 +140,7 @@ private struct HistoryRow: View {
             .font(.headline)
             HStack(spacing: 6) {
                 Text(game.playStart.formatted(date: .abbreviated, time: .shortened))
+                if let loc = game.location { Text("· \(loc)").lineLimit(1) }
                 if !game.scoredOn.isEmpty { Text("· \(game.scoredOn)") }
                 if game.winner == nil && game.isFinished { Text("· tie") }
             }
@@ -175,9 +173,9 @@ struct GameDetailView: View {
                 VStack(spacing: 16) {
                     GameSummaryView(game: game)
                     Button {
-                        sender.email(game, to: store.settings.resultsEmail)
+                        sender.share(game)
                     } label: {
-                        Label("Email results", systemImage: "envelope.fill")
+                        Label("Share results", systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -196,7 +194,7 @@ struct GameDetailView: View {
                 }
             }
             .resultsSheets(sender)
-            .renameTeamsAlert(game: game, isPresented: $renaming)
+            .gameDetailsAlert(game: game, isPresented: $renaming)
         } else {
             ContentUnavailableView("Game deleted", systemImage: "trash")
         }

@@ -28,17 +28,19 @@ Under the buttons are the **Plus**, **Minus** and **Total** tallies for the half
 
 The end-of-game summary shows final scores, the winner, the line score, and for each inning each half's + / − / net with the score at the end of the inning.
 
-## Results files and email
+## Results files and sharing
 
-- **Start time:** the time play starts is the first time the clock is started. History, the email and the file name all use it.
-- **File:** every finished game is saved as a CSV in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is date first, e.g. `2026-11-08 1930 Hawks v Owls.csv`. The file has:
+- **New Game details:** Home and Away team names and an optional **Location**. All three are remembered for the next game.
+- **Start time:** the time play starts is the first time the clock is started.
+- **File:** every finished game is saved as a CSV in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is **home-away-location-date&time**, e.g. `Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.csv`; the location part is left out if none was entered. The file has:
+  - the location and the start and finish times;
   - a row for each half (plus, minus, half total and both teams' running totals);
   - each team's score at the end of each inning;
   - each team's plus, minus and total, and the result.
   Negatives are plain `-` so spreadsheets read them as numbers, and the file starts with a UTF-8 marker so Excel shows the characters correctly.
-- **Email results** (final screen and History) opens Mail with a readable summary and the CSV attached. It's addressed to Settings → Results → "Send results to" if that's set. If Mail isn't set up, it opens the share sheet instead, so Gmail, Outlook and so on still work.
-- **History:** you can edit the team names, which renames the file, and email or share a game again. Deleting a game asks whether to delete its file too.
-- **Watch:** games are always Away v Home and don't change the names remembered on the phone. They reach the phone when finished, where their file is saved.
+- **Share results** (final screen and History) opens the share sheet with the CSV and a readable summary. Mail, Gmail and Outlook also get a subject line. Messages, WhatsApp, AirDrop and Save to Files all work. The app never sends anything itself.
+- **History:** edit the teams and location, which renames the file, or share a game again. Deleting a game asks whether to delete its file too.
+- **Watch:** games are always Away v Home with no location, and they don't change what the phone remembers. Add the details afterwards in History on the iPhone.
 - **No permissions:** none are needed. The Info.plist keys `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` make the folder appear in Files.
 
 ## Sync

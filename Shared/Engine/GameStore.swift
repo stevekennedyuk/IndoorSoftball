@@ -139,16 +139,19 @@ final class GameStore {
     /// Starts a new game with the current settings (which are remembered for next time).
     /// `rememberNames: false` (the Watch) uses the names for this game only,
     /// without changing the names remembered in Settings.
-    func newGame(awayName: String? = nil, homeName: String? = nil, rememberNames: Bool = true, at date: Date = Date()) {
+    func newGame(awayName: String? = nil, homeName: String? = nil, location: String? = nil,
+                 rememberNames: Bool = true, at date: Date = Date()) {
         if rememberNames {
             if let away = awayName { settings.awayName = away }
             if let home = homeName { settings.homeName = home }
+            if let loc = location { settings.location = loc }
         }
         settings = settings.sanitized()
         // A finished game on screen is already in history; an unfinished one is abandoned.
         game = Game(settings: settings,
                     awayName: awayName ?? settings.awayName,
                     homeName: homeName ?? settings.homeName,
+                    location: rememberNames ? (location ?? settings.location) : location,
                     at: date, scoredOn: deviceName)
         warnedHalf = nil
         timeUpHalf = nil
@@ -304,16 +307,18 @@ final class GameStore {
         onGamesDeleted?(removed, deleteFiles)
     }
 
-    /// Changes the team names of a finished game (e.g. one scored on the Watch as
-    /// Away v Home). Its results file is renamed to match.
-    func renameTeams(gameID: UUID, away: String, home: String) {
+    /// Changes the team names and location of a finished game (e.g. one scored on
+    /// the Watch as Away v Home). Its results file is renamed to match.
+    func updateDetails(gameID: UUID, away: String, home: String, location: String) {
         let a = away.trimmingCharacters(in: .whitespaces)
         let h = home.trimmingCharacters(in: .whitespaces)
+        let l = location.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let i = history.firstIndex(where: { $0.id == gameID }) else { return }
         let old = history[i]
         var new = old
         new.awayName = a.isEmpty ? "Away" : a
         new.homeName = h.isEmpty ? "Home" : h
+        new.location = l.isEmpty ? nil : l
         guard new != old else { return }
         history[i] = new
         if game?.id == gameID { game = new }
