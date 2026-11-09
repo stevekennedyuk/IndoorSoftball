@@ -79,7 +79,7 @@ The project uses Xcode 16+ **folder-synchronised groups**: any Swift file droppe
 1. Open `IndoorSoftball.xcodeproj` (Xcode 16 or later).
 2. Team is preset to BWY5VL5Y24 with automatic signing; bundle IDs `uk.nettek.IndoorSoftball` and `uk.nettek.IndoorSoftball.watchkitapp`.
 3. Run the **IndoorSoftball** scheme on an iPhone/iPad, or the **IndoorSoftball Watch App** scheme on a watch.
-4. Version 1.0 (4). Build-number policy as for UmpireClicker: keep the next unused build number in the project and untick "Manage Version and Build Number" at Distribute.
+4. Version 1.0 (5). Build-number policy as for UmpireClicker: keep the next unused build number in the project and untick "Manage Version and Build Number" at Distribute.
 5. TestFlight / App Store Connect: see `AppStore/AppStoreConnect.md` for the bundle IDs, the nettek.uk support and privacy URLs, the privacy answers ("Data Not Collected"), the description, keywords and "What to Test", and the upload checklist. The support and privacy pages to upload are in `Website/indoor-softball/` (they go at https://nettek.uk/indoor-softball/).
 
 Tips: on the watch, set Settings → General → Return to Clock → Indoor Softball → "After 1 hour" so the app stays up between plays. The time-up and 1-minute alerts also arrive as notifications if the app is in the background (add the Time Sensitive Notifications capability if you want them to break through Focus).

@@ -9,7 +9,7 @@
 | iOS bundle ID | `uk.nettek.IndoorSoftball` |
 | watchOS bundle ID | `uk.nettek.IndoorSoftball.watchkitapp` |
 | SKU | `uk.nettek.indoorsoftball` |
-| Version / build | 1.0 (4) is next. Builds 1–3 have been uploaded; build 3 built with no Xcode errors and uploaded on 7 Nov 2026. The project always holds the next unused build number, so bump it straight after each confirmed upload. The iPhone and Watch apps must have the same build number. |
+| Version / build | 1.0 (5) is next. Builds 1–4 have been uploaded; build 4 (teams, location, results document and Share results) was uploaded on 9 Nov 2026. The project always holds the next unused build number, so bump it straight after each confirmed upload. The iPhone and Watch apps must have the same build number. |
 | Copyright | © 2026 NetTek Ltd |
 | Primary category | Sports |
 | Secondary category | Utilities |
