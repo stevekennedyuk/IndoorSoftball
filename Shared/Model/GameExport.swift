@@ -7,6 +7,15 @@ extension Game {
     /// back to when the game was set up if the clock was never started.
     var playStart: Date { playStartedAt ?? startedAt }
 
+    /// Scored on the Apple Watch.
+    var isFromWatch: Bool { scoredOn == "Watch" }
+
+    /// A Watch game still showing the default Away / Home names or no location –
+    /// History prompts for the details.
+    var needsDetails: Bool {
+        isFromWatch && ((awayName == "Away" && homeName == "Home") || location == nil)
+    }
+
     // MARK: File name
 
     /// home-away-location-date&time, e.g.

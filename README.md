@@ -40,7 +40,7 @@ The end-of-game summary shows final scores, the winner, the line score, and for 
   Negatives are plain `-` so spreadsheets read them as numbers, and the file starts with a UTF-8 marker so Excel shows the characters correctly.
 - **Share results** (final screen and History) opens the share sheet with the CSV and a readable summary. Mail, Gmail and Outlook also get a subject line. Messages, WhatsApp, AirDrop and Save to Files all work. The app never sends anything itself.
 - **History:** edit the teams and location, which renames the file, or share a game again. Deleting a game asks whether to delete its file too.
-- **Watch:** games are always Away v Home with no location, and they don't change what the phone remembers. Add the details afterwards in History on the iPhone.
+- **Watch:** games are always Away v Home with no location, and they don't change what the phone remembers. When one reaches the iPhone, History marks it "Scored on Watch · tap to add teams & location". Opening it shows an **Add team names & location** button, which also renames the results file.
 - **No permissions:** none are needed. The Info.plist keys `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` make the folder appear in Files.
 
 ## Sync

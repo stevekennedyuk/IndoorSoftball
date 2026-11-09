@@ -141,11 +141,17 @@ private struct HistoryRow: View {
             HStack(spacing: 6) {
                 Text(game.playStart.formatted(date: .abbreviated, time: .shortened))
                 if let loc = game.location { Text("· \(loc)").lineLimit(1) }
-                if !game.scoredOn.isEmpty { Text("· \(game.scoredOn)") }
+                if !game.scoredOn.isEmpty && !game.isFromWatch { Text("· \(game.scoredOn)") }
                 if game.winner == nil && game.isFinished { Text("· tie") }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+            if game.isFromWatch {
+                Label(game.needsDetails ? "Scored on Watch · tap to add teams & location" : "Scored on Watch",
+                      systemImage: "applewatch")
+                    .font(.caption.weight(game.needsDetails ? .semibold : .regular))
+                    .foregroundStyle(game.needsDetails ? Theme.warning : .secondary)
+            }
         }
         .padding(.vertical, 2)
     }
@@ -171,6 +177,33 @@ struct GameDetailView: View {
         if let game = store.history.first(where: { $0.id == gameID }) {
             ScrollView {
                 VStack(spacing: 16) {
+                    if game.isFromWatch {
+                        Button {
+                            renaming = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "applewatch")
+                                    .font(.title2)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(game.needsDetails ? "Add team names & location" : "Edit teams & location")
+                                        .font(.headline)
+                                    Text("Scored on Apple Watch. The results file is renamed to match.")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "pencil.circle.fill").font(.title2)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(RoundedRectangle(cornerRadius: 14)
+                                .fill(game.needsDetails ? Theme.warning.opacity(0.18) : Theme.card))
+                            .overlay(RoundedRectangle(cornerRadius: 14)
+                                .stroke(game.needsDetails ? Theme.warning : Color.clear, lineWidth: 1.5))
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(game.needsDetails ? Theme.warning : .primary)
+                    }
                     GameSummaryView(game: game)
                     Button {
                         sender.share(game)
