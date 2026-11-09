@@ -32,13 +32,24 @@ The end-of-game summary shows final scores, the winner, the line score, and for 
 
 - **New Game details:** Home and Away team names and an optional **Location**. All three are remembered for the next game.
 - **Start time:** the time play starts is the first time the clock is started.
-- **File:** every finished game is saved as a CSV in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is **home-away-location-date&time**, e.g. `Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.csv`; the location part is left out if none was entered. The file has:
-  - the location and the start and finish times;
-  - a row for each half (plus, minus, half total and both teams' running totals);
-  - each team's score at the end of each inning;
-  - each team's plus, minus and total, and the result.
-  Negatives are plain `-` so spreadsheets read them as numbers, and the file starts with a UTF-8 marker so Excel shows the characters correctly.
-- **Share results** (final screen and History) opens the share sheet with the CSV and a readable summary. Mail, Gmail and Outlook also get a subject line. Messages, WhatsApp, AirDrop and Save to Files all work. The app never sends anything itself.
+- **File:** every finished game is saved as a text document in the app's Documents folder, which the Files app shows as On My iPhone/iPad → Indoor Softball. The name is **home-away-location-date&time**, e.g. `Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt`; the location part is left out if none was entered. The layout is:
+
+  ```
+  Hawks vs Owls : Hackney Leisure Centre : 08/11/2026 : 19:30
+  Inning 1
+  Hawks: +11 : -2 : 9
+  Owls: +8 : -2 : 6
+  Inning 2
+  Hawks: +9 : -2 : 7
+  Owls: +12 : -1 : 11
+
+  End Game
+  Hawks: 16
+  Owls: 17
+  ```
+
+  Each inning line is that team's plus, minus and total for the inning. A half that wasn't played (game ended early) shows "not played".
+- **Share results** (final screen and History) opens the share sheet with the results document attached and its text in the message. Mail, Gmail and Outlook also get a subject line. Messages, WhatsApp, AirDrop and Save to Files all work. The app never sends anything itself.
 - **History:** edit the teams and location, which renames the file, or share a game again. Deleting a game asks whether to delete its file too.
 - **Watch:** games are always Away v Home with no location, and they don't change what the phone remembers. When one reaches the iPhone, History marks it "Scored on Watch · tap to add teams & location". Opening it shows an **Add team names & location** button, which also renames the results file.
 - **No permissions:** none are needed. The Info.plist keys `UIFileSharingEnabled` and `LSSupportsOpeningDocumentsInPlace` make the folder appear in Files.

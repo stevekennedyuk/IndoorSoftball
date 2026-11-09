@@ -1,6 +1,6 @@
 import Foundation
 
-/// Saves each finished game as a CSV file in the app's Documents folder, which
+/// Saves each finished game as a text document in the app's Documents folder, which
 /// the Files app shows under On My iPhone/iPad → Indoor Softball (the iOS target
 /// sets UIFileSharingEnabled and LSSupportsOpeningDocumentsInPlace).
 /// File names come from the game (date, time and teams), so renaming a game
@@ -18,14 +18,13 @@ struct ResultsArchive: Sendable {
         directory.appendingPathComponent(game.exportFileName)
     }
 
-    /// Writes (or rewrites) the game's CSV file. Returns its URL.
+    /// Writes (or rewrites) the game's results document. Returns its URL.
     @discardableResult
     func save(_ game: Game) -> URL? {
         let url = url(for: game)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            // UTF-8 byte-order mark so Excel shows "–" and "·" correctly; Numbers/Sheets ignore it.
-            try Data(("\u{FEFF}" + game.csv).utf8).write(to: url, options: .atomic)
+            try Data(game.resultsDocument.utf8).write(to: url, options: .atomic)
             return url
         } catch {
             print("ResultsArchive save failed: \(error)")

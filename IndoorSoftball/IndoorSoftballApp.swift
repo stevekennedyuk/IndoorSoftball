@@ -12,7 +12,7 @@ struct IndoorSoftballApp: App {
         _store = State(initialValue: s)
         feedback = fb
         SyncManager.shared.attach(s)
-        // Save every finished game (including ones from the Watch) as a CSV file
+        // Save every finished game (including ones from the Watch) as a text document
         // in Documents, which the Files app shows as On My iPhone → Indoor Softball.
         let archive = ResultsArchive.standard
         s.onGameArchived = { game in _ = archive.save(game) }

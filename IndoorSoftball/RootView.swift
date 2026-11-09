@@ -43,7 +43,7 @@ struct SettingsScreen: View {
             } header: {
                 Text("Results")
             } footer: {
-                Text("Every finished game is saved as a spreadsheet (CSV) file named home-away-location-date & time. Use Share results on the final screen or in History to send it.")
+                Text("Every finished game is saved as a text document named home-away-location-date & time. Use Share results on the final screen or in History to send it.")
             }
             Section("About") {
                 NavigationLink {

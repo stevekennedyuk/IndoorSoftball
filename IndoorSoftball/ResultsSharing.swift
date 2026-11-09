@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shares a game's results through the standard share sheet: the CSV file plus a
+/// Shares a game's results through the standard share sheet: the results document plus a
 /// readable summary, with a subject line for apps that use one (Mail, Gmail,
 /// Outlook…). Messages, WhatsApp, AirDrop, Save to Files and so on all work.
 @MainActor

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Results export: the CSV file saved for each finished game, its file name,
-/// and the subject / message used when sharing it.
+/// Results export: the text document saved for each finished game, its file
+/// name, and the subject / message used when sharing it.
 extension Game {
     /// When play actually started (first time the clock was started), falling
     /// back to when the game was set up if the clock was never started.
@@ -19,13 +19,13 @@ extension Game {
     // MARK: File name
 
     /// home-away-location-date&time, e.g.
-    /// "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.csv"
+    /// "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt"
     /// (the location part is left out if no location was entered).
     var exportFileName: String {
         var parts = [Self.fileSafe(homeName), Self.fileSafe(awayName)]
         if let loc = location, !loc.isEmpty { parts.append(Self.fileSafe(loc, fallback: "Location")) }
         parts.append(Self.stamp(playStart, "yyyy-MM-dd HHmm"))
-        return parts.joined(separator: "-") + ".csv"
+        return parts.joined(separator: "-") + ".txt"
     }
 
     /// Removes characters that aren't allowed (or are awkward) in file names.
@@ -59,60 +59,53 @@ extension Game {
         return "Indoor Softball: \(awayName) \(total(.away).scoreString) – \(homeName) \(total(.home).scoreString)\(place) (\(Self.stamp(playStart, "d MMM yyyy, HH:mm")))"
     }
 
-    /// Message shared alongside the file.
-    var shareMessage: String {
-        textReport + "\n\nFull scoresheet attached as a CSV file (opens in Numbers, Excel or Google Sheets).\n\nIndoor Softball – nettek.uk"
-    }
+    /// Message shared alongside the file: the results document itself.
+    var shareMessage: String { resultsDocument }
 
-    // MARK: CSV
+    // MARK: Results document
 
-    /// Spreadsheet-friendly scoresheet. Uses plain "-" for negatives so
-    /// spreadsheets read them as numbers.
-    var csv: String {
-        func n(_ v: Int) -> String { String(v) }              // ASCII minus
-        func field(_ s: String) -> String {
-            if s.contains(where: { $0 == "," || $0 == "\"" || $0 == "\n" }) {
-                return "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\""
-            }
-            return s
-        }
-        let a = field(awayName), h = field(homeName)
-        var rows: [String] = []
-        rows.append(field("Indoor Softball – \(awayName) v \(homeName)"))
-        if let loc = location, !loc.isEmpty { rows.append("Location,\(field(loc))") }
-        rows.append("Play started,\(Self.stamp(playStart, "yyyy-MM-dd HH:mm"))")
-        if let end = endedAt { rows.append("Finished,\(Self.stamp(end, "yyyy-MM-dd HH:mm"))") }
-        rows.append("Settings,\(settings.innings) innings x \(Self.durationText(settings.halfInningSeconds)) · HR +\(settings.homeRunPoints)")
-        rows.append("")
-        rows.append("Inning,Half,Batting,Plus,Minus,Half total,\(a) running,\(h) running")
-        var runA = 0, runH = 0
-        for half in halves {
-            let batting = field(name(half.battingTeam))
-            if isReached(half) {
-                if half.battingTeam == .away { runA += half.net } else { runH += half.net }
-                rows.append("\(half.inning),\(half.isTop ? "Top" : "Bottom"),\(batting),\(n(half.positive)),\(n(half.negative)),\(n(half.net)),\(n(runA)),\(n(runH))")
-            } else {
-                rows.append("\(half.inning),\(half.isTop ? "Top" : "Bottom"),\(batting),,,not played,,")
-            }
-        }
-        rows.append("")
-        rows.append("Inning,\(a),\(h)")
+    /// The results document, laid out as:
+    ///
+    ///     Hawks vs Owls : Hackney Leisure Centre : 08/11/2026 : 19:30
+    ///     Inning 1
+    ///     Hawks: +11 : -2 : 9
+    ///     Owls: +8 : -2 : 6
+    ///     Inning 2
+    ///     Hawks: +9 : -2 : 7
+    ///     Owls: +12 : -1 : 11
+    ///
+    ///     End Game
+    ///     Hawks: 16
+    ///     Owls: 17
+    ///
+    /// Each inning line is that team's plus, minus and total for the inning.
+    /// The location is left out of the first line if none was entered, and a
+    /// half that wasn't played (game ended early) shows "not played".
+    var resultsDocument: String {
+        func plus(_ v: Int) -> String { "+\(v)" }
+        func minus(_ v: Int) -> String { v == 0 ? "-0" : "-\(-v)" }
+        var header = ["\(awayName) vs \(homeName)"]
+        if let loc = location, !loc.isEmpty { header.append(loc) }
+        header.append(Self.stamp(playStart, "dd/MM/yyyy"))
+        header.append(Self.stamp(playStart, "HH:mm"))
+
+        var lines = [header.joined(separator: " : ")]
         for inning in 1...max(1, inningsCount) {
-            if let bottom = half(team: .home, inning: inning), isReached(bottom) {
-                rows.append("End of inning \(inning),\(n(cumulative(.away, throughInning: inning))),\(n(cumulative(.home, throughInning: inning)))")
+            lines.append("Inning \(inning)")
+            for team in [Team.away, .home] {
+                guard let h = half(team: team, inning: inning) else { continue }
+                if isReached(h) {
+                    lines.append("\(name(team)): \(plus(h.positive)) : \(minus(h.negative)) : \(h.net)")
+                } else {
+                    lines.append("\(name(team)): not played")
+                }
             }
         }
-        rows.append("")
-        rows.append("Team,Plus,Minus,Total")
-        rows.append("\(a),\(n(positiveTotal(.away))),\(n(negativeTotal(.away))),\(n(total(.away)))")
-        rows.append("\(h),\(n(positiveTotal(.home))),\(n(negativeTotal(.home))),\(n(total(.home)))")
-        let ta = total(.away), th = total(.home)
-        let result: String
-        if !isFinished { result = "In progress" }
-        else if ta == th { result = "Tied \(ta) - \(th)" }
-        else if ta > th { result = "\(awayName) win \(ta) - \(th)" }
-        else { result = "\(homeName) win \(th) - \(ta)" }
-        rows.append("Result,\(field(result))")
-        return rows.joined(separator: "\r\n") + "\r\n"
+        lines.append("")
+        lines.append(isFinished ? "End Game" : "Score so far")
+        lines.append("\(awayName): \(total(.away))")
+        lines.append("\(homeName): \(total(.home))")
+        return lines.joined(separator: "\n") + "\n"
     }
+
 }
