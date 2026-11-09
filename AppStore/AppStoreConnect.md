@@ -119,6 +119,21 @@ Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `Ap
 | Apple Watch (422 × 514, Ultra) | `watch_1_scoring`, `watch_2_clock` |
 | App icon (1024 × 1024, opaque) | `appstore_icon_1024x1024.png`. It's the same picture as the Xcode AppIcon; App Store Connect and TestFlight take the icon from the build, so this copy is for the website or press. |
 
+### Product page header & search results (iOS 27 / iPadOS 27)
+
+Upload these in App Store Connect under **Product Page Information → Header and Search Results**. Regenerate them with `python3 AppStore/make_promo.py`.
+
+| Placement | Size | File |
+|---|---|---|
+| Product page header (21:9) | 3840 × 1646 | `header_3840x1646.png` |
+| Search results (3:2) | 3840 × 2560 (or 1920 × 1280) | `search_3840x2560.png` / `search_1920x1280.png` |
+| One image for both (16:9 PNG) | 5244 × 2950 | `universal_5244x2950.png` |
+
+- Use either the dedicated header and search images, or the universal image with **Use header asset in search results** turned on.
+- The universal image keeps the headline, phone and Watch inside the area both crops show.
+- All the images are opaque PNGs, which Apple requires.
+- The artwork is shared with the app's 4+ age rating and is reviewed with the version, so check it in App Store Connect's product page preview before submitting.
+
 ### iPhone Duo
 
 - From **April 2027**, every app submission must include iPhone Duo screenshots. Supplying them now also adds the "optimised for iPhone Duo" badge to the product page.
