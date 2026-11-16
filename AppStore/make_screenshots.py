@@ -289,11 +289,14 @@ def scoring_pad(s, x, y, w, h, hr=5, large=False, compact=False):
     bw = (w - gap) / 2
     pad_button(s, x, y, bw, row1, "+1", "Point", POS, 50 if not large else 64)
     pad_button(s, x + bw + gap, y, bw, row1, "−1", "Minus", NEG, 50 if not large else 64)
-    uw = 76 if not large else 110
-    pad_button(s, x, y + row1 + gap, w - uw - gap, row2, f"HR +{hr}", "" if compact else "★ Home Run", WARN,
-               26 if compact else (36 if not large else 46))
-    ux = x + w - uw
+    # lower row: HR, OC (out by catcher at home) and Undo – matches ScoringPad.indoorPad
+    uw = 110 if large else (60 if compact else 68)
     uy = y + row1 + gap
+    bw2 = (w - uw - 2 * gap) / 2
+    big2 = 22 if compact else (31 if not large else 40)
+    pad_button(s, x, uy, bw2, row2, f"HR +{hr}", "" if compact else "★ Home Run", WARN, big2)
+    pad_button(s, x + bw2 + gap, uy, bw2, row2, "OC −2", "" if compact else "Out by Catcher", NEG, big2)
+    ux = x + w - uw
     s.rect(ux, uy, uw, row2, 14, fill=mix((140, 140, 140), BLACK, 0.16), outline=mix((140, 140, 140), BLACK, 0.55), width=1.5)
     if compact:
         s.text(ux + uw / 2, uy + row2 / 2, "↩", "b", 22, WHITE, "mm")
@@ -517,21 +520,24 @@ def watch_scoring(s):
             s.rect(tx, y, tw, 26, 6, fill=(38, 38, 40))
         s.text(tx + tw / 2, y + 13, v, "rnd", 20, c, "mm")
     y += 32
-    gap = 5
-    rh1 = 112
+    gap = 4
+    rh2 = 44                      # HR / OC / Undo row, as in WatchScorePage
+    rh1 = h - y - rh2 - gap - 8
     bw = (w - 16 - gap) / 2
     for i, (t, c) in enumerate((("+1", POS), ("−1", NEG))):
         bx = 8 + i * (bw + gap)
         s.rect(bx, y, bw, rh1, 14, fill=mix(c, BLACK, 0.16), outline=mix(c, BLACK, 0.55), width=1.2)
         s.text(bx + bw / 2, y + rh1 / 2, t, "rnd", 44, c, "mm")
     y += rh1 + gap
-    rh2 = h - y - 10
-    uw = 46
-    s.rect(8, y, w - 16 - uw - gap, rh2, 14, fill=mix(WARN, BLACK, 0.16), outline=mix(WARN, BLACK, 0.55), width=1.2)
-    s.text(8 + (w - 16 - uw - gap) / 2, y + rh2 / 2, "HR +5", "rnd", 26, WARN, "mm")
+    uw = 36
+    bw2 = (w - 16 - uw - 2 * gap) / 2
+    for i, (t, c) in enumerate((("HR +5", WARN), ("OC −2", NEG))):
+        bx = 8 + i * (bw2 + gap)
+        s.rect(bx, y, bw2, rh2, 12, fill=mix(c, BLACK, 0.16), outline=mix(c, BLACK, 0.55), width=1.2)
+        s.text(bx + bw2 / 2, y + rh2 / 2, t, "rnd", 19, c, "mm")
     ux = w - 8 - uw
-    s.rect(ux, y, uw, rh2, 14, fill=(30, 30, 32), outline=(80, 80, 84), width=1.2)
-    s.text(ux + uw / 2, y + rh2 / 2, "↩", "b", 20, WHITE, "mm")
+    s.rect(ux, y, uw, rh2, 12, fill=(30, 30, 32), outline=(80, 80, 84), width=1.2)
+    s.text(ux + uw / 2, y + rh2 / 2, "↩", "b", 17, WHITE, "mm")
 
 
 def watch_clock(s):
@@ -583,7 +589,7 @@ def make_icon():
 
 # ---------------------------------------------------------------- main
 SHOTS = [
-    ("1_scoring", "Three buttons. Every point.", "+1  ·  −1  ·  Home Run  –  live Plus / Minus / Total",
+    ("1_scoring", "Big buttons. Every point.", "+1  ·  −1  ·  Home Run  ·  Out by Catcher  –  live tallies",
      lambda s: iphone_live(s, "running")),
     ("2_timeup", "Timed half innings.", "Clock stops at 0:00 – finish scoring, then start the next half",
      lambda s: iphone_live(s, "timeup")),

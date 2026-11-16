@@ -103,16 +103,16 @@ def compose(W, H, safe, name):
         return ms.font(kind, px)
 
     hl = int(sh * 0.135)
-    f1 = fit("Three buttons.", "blk", hl)
+    f1 = fit("Big buttons.", "blk", hl)
     f2 = fit("Every point.", "blk", hl)
     hl_px = min(f1.size, f2.size)
     y = iy + icon_sz + sh * 0.10
-    d.text((tx, y), "Three buttons.", font=ms.font("blk", hl_px), fill=ms.WHITE, anchor="la")
+    d.text((tx, y), "Big buttons.", font=ms.font("blk", hl_px), fill=ms.WHITE, anchor="la")
     y += hl_px * 1.12
     d.text((tx, y), "Every point.", font=ms.font("blk", hl_px), fill=ms.POWDER, anchor="la")
     y += hl_px * 1.45
-    sub = fit("+1  ·  −1  ·  Home Run  ·  timed half innings", "m", int(sh * 0.048))
-    d.text((tx, y), "+1  ·  −1  ·  Home Run  ·  timed half innings", font=sub, fill=(205, 222, 240), anchor="la")
+    sub = fit("Indoor & outdoor scoring  ·  timed half innings", "m", int(sh * 0.048))
+    d.text((tx, y), "Indoor & outdoor scoring  ·  timed half innings", font=sub, fill=(205, 222, 240), anchor="la")
     y += sub.size * 1.7
     small = fit("iPhone  ·  iPad  ·  Apple Watch", "sb", int(sh * 0.036))
     d.text((tx, y), "iPhone  ·  iPad  ·  Apple Watch", font=small, fill=(150, 170, 200), anchor="la")
