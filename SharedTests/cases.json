@@ -1,0 +1,74 @@
+{
+  "about": "Scoring cases that BOTH engines must pass: Android/shared (ScoringCasesTest.kt) and iOS (iOS/Tests/EngineChecks). Add a case here whenever a rule changes. Taps: +1, -1, HR, OC, HR+1..HR+3, undo; 'x' repeats, e.g. '+1x11'. Dates are local time.",
+  "tallies": [
+    { "name": "indoor basics", "scoring": "indoor", "taps": ["+1", "+1", "-1", "HR"], "plus": 7, "minus": -1, "total": 6 },
+    { "name": "indoor out by catcher", "scoring": "indoor", "taps": ["+1", "OC", "HR", "-1"], "plus": 6, "minus": -3, "total": 3 },
+    { "name": "indoor custom HR and OC values", "scoring": "indoor", "homeRunPoints": 4, "outAtHomeByCatcherPoints": -3, "taps": ["HR", "OC", "+1"], "plus": 5, "minus": -3, "total": 2 },
+    { "name": "indoor undo removes the last tap", "scoring": "indoor", "taps": ["+1", "HR", "undo", "-1"], "plus": 1, "minus": -1, "total": 0 },
+    { "name": "indoor all negative", "scoring": "indoor", "taps": ["-1", "-1", "OC"], "plus": 0, "minus": -4, "total": -4 },
+    { "name": "outdoor runs", "scoring": "outdoor", "taps": ["+1", "HR+1", "HR+3"], "plus": 7, "minus": 0, "total": 7 },
+    { "name": "outdoor HR+2 with undo", "scoring": "outdoor", "taps": ["HR+2", "+1", "undo"], "plus": 3, "minus": 0, "total": 3 },
+    { "name": "outdoor ignores the indoor HR value", "scoring": "outdoor", "homeRunPoints": 9, "taps": ["HR+1"], "plus": 2, "minus": 0, "total": 2 }
+  ],
+  "games": [
+    {
+      "name": "indoor, two innings, home win by one",
+      "scoring": "indoor", "innings": 2,
+      "away": "Hawks", "home": "Owls", "location": "Hackney Leisure Centre",
+      "playStart": "2026-11-08T19:30",
+      "halves": [
+        ["+1x11", "-1x2"],
+        ["+1x8", "-1x2"],
+        ["HR", "+1x4", "-1x2"],
+        ["HR", "+1x7", "-1"]
+      ],
+      "awayTotal": 16, "homeTotal": 17, "winner": "home",
+      "fileName": "Owls-Hawks-Hackney Leisure Centre-2026-11-08 1930.txt",
+      "subject": "Indoor Softball: Hawks 16 – Owls 17, Hackney Leisure Centre (8 Nov 2026, 19:30)",
+      "document": "Hawks vs Owls : Hackney Leisure Centre : 08/11/2026 : 19:30\nInning 1\nHawks: +11 : -2 : 9\nOwls: +8 : -2 : 6\nInning 2\nHawks: +9 : -2 : 7\nOwls: +12 : -1 : 11\n\nEnd Game\nHawks: 16\nOwls: 17\n"
+    },
+    {
+      "name": "outdoor, nothing entered, ended early",
+      "scoring": "outdoor", "innings": 2,
+      "away": "", "home": "", "location": "",
+      "playStart": "2026-11-09T14:05",
+      "halves": [
+        ["+1", "HR+1"],
+        ["+1"],
+        ["HR+3"]
+      ],
+      "awayTotal": 7, "homeTotal": 1, "winner": "away",
+      "fileName": "Home-Away-Location-2026-11-09 1405.txt",
+      "subject": "Indoor Softball: Away 7 – Home 1, Location (9 Nov 2026, 14:05)",
+      "document": "Away vs Home : Location : 09/11/2026 : 14:05\nInning 1\nAway: +3 : -0 : 3\nHome: +1 : -0 : 1\nInning 2\nAway: +4 : -0 : 4\nHome: not played\n\nEnd Game\nAway: 7\nHome: 1\n"
+    },
+    {
+      "name": "awkward characters and negative totals (−1 beats −2)",
+      "scoring": "indoor", "innings": 1,
+      "away": "A/B", "home": "C:D", "location": "Hall 1.",
+      "playStart": "2026-02-01T09:00",
+      "halves": [
+        ["OC"],
+        ["-1"]
+      ],
+      "awayTotal": -2, "homeTotal": -1, "winner": "home",
+      "fileName": "C-D-A-B-Hall 1-2026-02-01 0900.txt",
+      "subject": "Indoor Softball: A/B −2 – C:D −1, Hall 1. (1 Feb 2026, 09:00)",
+      "document": "A/B vs C:D : Hall 1. : 01/02/2026 : 09:00\nInning 1\nA/B: +0 : -2 : -2\nC:D: +0 : -1 : -1\n\nEnd Game\nA/B: -2\nC:D: -1\n"
+    },
+    {
+      "name": "tie stands",
+      "scoring": "indoor", "innings": 1,
+      "away": "Reds", "home": "Blues", "location": "Sobell Centre",
+      "playStart": "2026-12-31T23:15",
+      "halves": [
+        ["+1x3"],
+        ["HR", "-1x2"]
+      ],
+      "awayTotal": 3, "homeTotal": 3, "winner": "tie",
+      "fileName": "Blues-Reds-Sobell Centre-2026-12-31 2315.txt",
+      "subject": "Indoor Softball: Reds 3 – Blues 3, Sobell Centre (31 Dec 2026, 23:15)",
+      "document": "Reds vs Blues : Sobell Centre : 31/12/2026 : 23:15\nInning 1\nReds: +3 : -0 : 3\nBlues: +5 : -2 : 3\n\nEnd Game\nReds: 3\nBlues: 3\n"
+    }
+  ]
+}
