@@ -104,9 +104,9 @@ Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple
 
 **Beta App Review contact:** Steve Karmeinsky, NetTek Ltd. No sign-in is needed, so leave the demo account blank.
 
-## Screenshots & icon (`AppStore/screenshots/`)
+## Screenshots & icon (`iOS/AppStore/screenshots/`)
 
-Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `AppStore/fonts/`; Inter and Nunito are both SIL OFL.
+Regenerate with `python3 iOS/AppStore/make_screenshots.py`. Fonts are bundled in `iOS/AppStore/fonts/`; Inter and Nunito are both SIL OFL.
 
 | App Store Connect slot | Files (upload in order 1 → 3) |
 |---|---|
@@ -123,7 +123,7 @@ Regenerate with `python3 AppStore/make_screenshots.py`. Fonts are bundled in `Ap
 
 ### Product page header & search results (iOS 27 / iPadOS 27)
 
-Upload these in App Store Connect under **Product Page Information → Header and Search Results**. Regenerate them with `python3 AppStore/make_promo.py`.
+Upload these in App Store Connect under **Product Page Information → Header and Search Results**. Regenerate them with `python3 iOS/AppStore/make_promo.py`.
 
 | Placement | Size | File |
 |---|---|---|

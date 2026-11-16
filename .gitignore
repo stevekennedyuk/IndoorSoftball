@@ -3,3 +3,13 @@ xcuserdata/
 *.xcuserstate
 DerivedData/
 build/
+
+# Android
+Android/.gradle/
+Android/**/build/
+Android/local.properties
+Android/.idea/
+Android/**/*.iml
+Android/captures/
+*.keystore
+*.jks
