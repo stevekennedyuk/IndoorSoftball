@@ -36,7 +36,7 @@ struct WatchStartView: View {
                         .font(.system(size: 36))
                         .foregroundStyle(Theme.positive)
                     Text("Indoor Softball").font(.headline)
-                    Text("\(store.settings.innings) inn × \(Theme.duration(store.settings.halfInningSeconds))")
+                    Text("\(store.settings.scoring.title) · \(store.settings.innings) inn × \(Theme.duration(store.settings.halfInningSeconds))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -76,7 +76,10 @@ struct WatchNewGameView: View {
                     Text("Home").foregroundStyle(Theme.home)
                 }
                 .font(.headline)
-                Text("\(store.settings.innings) innings · \(Theme.duration(store.settings.halfInningSeconds)) halves")
+                Toggle("Outdoor scoring", isOn: Binding(
+                    get: { store.settings.scoring == .outdoor },
+                    set: { store.settings.scoring = $0 ? .outdoor : .indoor }))
+                Text("\(store.settings.scoring.title) · \(store.settings.innings) innings · \(Theme.duration(store.settings.halfInningSeconds)) halves")
                     .font(.footnote)
                 Button {
                     store.newGame(awayName: "Away", homeName: "Home", rememberNames: false)
@@ -187,35 +190,65 @@ struct WatchScorePage: View {
         if let g = store.game {
             let h = g.current
             VStack(spacing: 4) {
+                let outdoor = g.settings.scoring == .outdoor
                 HStack(spacing: 4) {
-                    tally("+\(h.positive)", Theme.positive)
-                    tally(h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
-                    tally(h.net.scoreString, Theme.pointsColor(h.net), boxed: true)
+                    if outdoor {
+                        tally("Runs \(h.net.scoreString)", Theme.pointsColor(h.net), boxed: true)
+                    } else {
+                        tally("+\(h.positive)", Theme.positive)
+                        tally(h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
+                        tally(h.net.scoreString, Theme.pointsColor(h.net), boxed: true)
+                    }
                 }
                 if store.clockStatus() == .timeUp {
                     Text("TIME – still scoring \(h.shortLabel)")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(Theme.negative)
                 }
-                HStack(spacing: 4) {
-                    big("+1", Theme.positive) { store.record(.adjustPlus) }
-                    big("−1", Theme.negative) { store.record(.adjustMinus) }
-                }
-                HStack(spacing: 4) {
-                    big("HR \(g.settings.homeRunPoints.signedString)", Theme.warning, size: 22) { store.record(.homeRun) }
-                    Button { store.undo() } label: {
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 18, weight: .bold))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if outdoor {
+                    // Outdoor: +1 run, and a home run with 1–3 runners on (2–4 runs).
+                    HStack(spacing: 4) {
+                        big("+1", Theme.positive) { store.record(.adjustPlus) }
+                        undoButton
                     }
-                    .buttonStyle(PadButtonStyle(color: .gray))
-                    .frame(width: 44)
-                    .disabled(!store.canUndo)
-                    .accessibilityLabel("Undo last")
+                    HStack(spacing: 4) {
+                        ForEach(1...3, id: \.self) { n in
+                            big("HR+\(n)", Theme.warning, size: 18) { store.record(.homeRun, runnersOn: n) }
+                                .accessibilityLabel("Home run plus \(n), \(n + 1) runs")
+                        }
+                    }
+                    .frame(height: 44)
+                } else {
+                    HStack(spacing: 4) {
+                        big("+1", Theme.positive) { store.record(.adjustPlus) }
+                        big("−1", Theme.negative) { store.record(.adjustMinus) }
+                    }
+                    HStack(spacing: 4) {
+                        big("HR \(g.settings.homeRunPoints.signedString)", Theme.warning, size: 20) { store.record(.homeRun) }
+                            .accessibilityLabel("Home run")
+                        big("OC \(g.settings.outAtHomeByCatcherPoints.signedString)", Theme.negative, size: 20) {
+                            store.record(.outAtHomeByCatcher)
+                        }
+                        .accessibilityLabel("Out by catcher at home")
+                        undoButton
+                    }
+                    .frame(height: 44)
                 }
             }
             .padding(.horizontal, 2)
         }
+    }
+
+    private var undoButton: some View {
+        Button { store.undo() } label: {
+            Image(systemName: "arrow.uturn.backward")
+                .font(.system(size: 16, weight: .bold))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .buttonStyle(PadButtonStyle(color: .gray))
+        .frame(width: 36)
+        .disabled(!store.canUndo)
+        .accessibilityLabel("Undo last")
     }
 
     private func tally(_ value: String, _ color: Color, boxed: Bool = false) -> some View {

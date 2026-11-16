@@ -54,10 +54,11 @@ TIMED HALF INNINGS
 • Haptic and sound alerts, plus notifications if the app is in the background
 • After time is up you can still enter the last scores until you start the next half
 
-SIMPLE SCORING
-• Three big buttons: +1, −1 and HR
-• HR adds a home run off the back wall (+5 by default, adjustable – +4 for the outdoor variant)
-• Plus, Minus and Total tallies for every half inning, right under the buttons
+INDOOR AND OUTDOOR SCORING
+• Choose the scoring type when you start a game
+• Indoor: +1, −1, HR for a home run off the back wall (+5) and OC for an out by the catcher at home (−2); both values are adjustable
+• Outdoor: runs only, with +1 and HR+1, HR+2 and HR+3 for home runs worth 2, 3 or 4 runs
+• Live tallies for every half inning, right above the buttons
 
 RESULTS YOU CAN SHARE
 • Enter home and away teams and the location for each game
@@ -86,9 +87,10 @@ softball,indoor,scorer,scoreboard,umpire,timer,innings,points,league,scorekeeper
 **Beta App Description**
 Score keeper and half-inning timer for indoor softball on iPhone, iPad and Apple Watch. +1 / −1 / Home Run scoring with plus, minus and total tallies; each half inning is timed.
 
-**What to Test (build 3)**
-- Start a game (Game → New Game), set the team names and check the default settings: 2 innings, 5:00 halves, HR +5.
-- New in build 4: enter the home and away teams and the location at New Game. The time play starts is recorded when the clock is first started. Finished games are saved as text documents named home-away-location-date&time (inning-by-inning plus, minus and total for each team, then the end-game totals) (Files → On My iPhone → Indoor Softball). Share results opens the share sheet with the document attached and its text in the message. History can edit the teams and location and share a game again. Watch games are Away v Home.
+**What to Test (build 5)**
+- Start a game (Game → New Game), set the team names and check the default settings: Indoor scoring, 2 innings, 5:00 halves, HR +5, OC −2.
+- New in build 5: New Game has an Indoor / Outdoor scoring choice. Indoor adds an OC button (out by the catcher at home, −2 by default, set in Settings) next to HR. Outdoor shows +1, HR+1, HR+2 and HR+3 (2, 3 and 4 runs) and a single runs tally. Please test both on iPhone and Watch.
+- Build 4: enter the home and away teams and the location at New Game. The time play starts is recorded when the clock is first started. Finished games are saved as text documents named home-away-location-date&time (inning-by-inning plus, minus and total for each team, then the end-game totals) (Files → On My iPhone → Indoor Softball). Share results opens the share sheet with the document attached and its text in the message. History can edit the teams and location and share a game again. Watch games are Away v Home.
 - Build 3: the layout is chosen from the screen space (please test iPhone Duo folded/unfolded, iPad mini/11″/13″ and rotation), and the HR row has a fixed height so +1 / −1 are always the biggest buttons.
 - Since build 1: the About screen (Settings → About), the larger iPad clock, and the clock stopping at 0:00.
 - Start the clock and score with +1, −1 and HR. Check the Plus, Minus and Total tallies and Undo.
@@ -146,7 +148,7 @@ Upload these in App Store Connect under **Product Page Information → Header an
 
 ## Notes for review (App Store Connect → App Review Information)
 
-> No sign-in is required. To try every feature: Game → New Game → Start clock → tap +1 / −1 / HR → when time is up, tap Start Bottom 1, and so on → End Game. On the final screen, tap **Share results**. It opens the standard share sheet with the results document. Results files are also visible in Files → On My iPhone → Indoor Softball. Nothing is sent anywhere unless the user chooses to.
+> No sign-in is required. To try every feature: Game → New Game → Start clock → tap the scoring buttons (Indoor: +1 / −1 / HR / OC; Outdoor: +1 / HR+1 / HR+2 / HR+3) → when time is up, tap Start Bottom 1, and so on → End Game. On the final screen, tap **Share results**. It opens the standard share sheet with the results document. Results files are also visible in Files → On My iPhone → Indoor Softball. Nothing is sent anywhere unless the user chooses to.
 
 ## Upload checklist
 

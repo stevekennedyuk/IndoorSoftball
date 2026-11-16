@@ -368,9 +368,13 @@ struct HalfTallyBar: View {
                     .foregroundStyle(Theme.color(h.battingTeam))
                     .lineLimit(1)
                 HStack(spacing: 8) {
-                    stat("PLUS", "+\(h.positive)", Theme.positive)
-                    stat("MINUS", h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
-                    stat("TOTAL", h.net.scoreString, Theme.pointsColor(h.net), emphasised: true)
+                    if g.settings.scoring == .outdoor {
+                        stat("RUNS THIS HALF", h.net.scoreString, Theme.pointsColor(h.net), emphasised: true)
+                    } else {
+                        stat("PLUS", "+\(h.positive)", Theme.positive)
+                        stat("MINUS", h.negative == 0 ? "−0" : h.negative.signedString, Theme.negative)
+                        stat("TOTAL", h.net.scoreString, Theme.pointsColor(h.net), emphasised: true)
+                    }
                 }
             }
         }

@@ -81,7 +81,9 @@ struct GameSummaryView: View {
 
     private var rulesSummary: String {
         let s = game.settings
-        return "\(s.innings) innings × \(Theme.duration(s.halfInningSeconds)) · HR \(s.homeRunPoints.signedString)"
+        let base = "\(s.scoring.title) scoring · \(s.innings) innings × \(Theme.duration(s.halfInningSeconds))"
+        guard s.scoring == .indoor else { return base }
+        return base + " · HR \(s.homeRunPoints.signedString) · OC \(s.outAtHomeByCatcherPoints.signedString)"
     }
 
     private func card<C: View>(@ViewBuilder _ content: () -> C) -> some View {

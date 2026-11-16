@@ -25,7 +25,7 @@ enum ScoreEventKind: String, Codable, CaseIterable, Sendable {
         case .homeRun: "Home Run"
         case .batterOut: "Batter Out"
         case .runnerOut: "Runner Out"
-        case .outAtHomeByCatcher: "Out @ Home"
+        case .outAtHomeByCatcher: "OC"
         case .adjustPlus: "+1"
         case .adjustMinus: "−1"
         }
@@ -42,7 +42,7 @@ enum ScoreEventKind: String, Codable, CaseIterable, Sendable {
         case .homeRun: "Home run"
         case .batterOut: "Batter out"
         case .runnerOut: "Runner out"
-        case .outAtHomeByCatcher: "Runner out at home by catcher"
+        case .outAtHomeByCatcher: "Out by catcher at home"
         case .adjustPlus: "+1 point"
         case .adjustMinus: "−1 point"
         }
@@ -103,7 +103,11 @@ enum ScoringRules {
             // scores like any runner crossing home.
             return s.pointsPerBase > 0 ? 4 * s.pointsPerBase : s.runPoints
         case .runnerHome: return s.runPoints
-        case .homeRun: return s.homeRunPoints + max(0, min(runnersOn, 3)) * s.runPoints
+        case .homeRun:
+            let runners = max(0, min(runnersOn, 3))
+            // Outdoor: the batter's run plus one per runner on (HR+1 = 2 … HR+3 = 4).
+            if s.scoring == .outdoor { return 1 + runners }
+            return s.homeRunPoints + runners * s.runPoints
         case .batterOut, .runnerOut: return s.outPoints
         case .outAtHomeByCatcher: return s.outAtHomeByCatcherPoints
         case .adjustPlus: return 1

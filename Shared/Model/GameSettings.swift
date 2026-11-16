@@ -1,5 +1,15 @@
 import Foundation
 
+/// Which set of scoring buttons a game uses.
+enum ScoringType: String, Codable, CaseIterable, Sendable {
+    /// +1, −1, HR (home run off the wall) and OC (out by the catcher at home).
+    case indoor
+    /// Runs only: +1, and HR+1 / HR+2 / HR+3 (home run with 1–3 runners on = 2–4 runs).
+    case outdoor
+
+    var title: String { self == .indoor ? "Indoor" : "Outdoor" }
+}
+
 /// Rule and timing settings for a game.
 ///
 /// Settings are edited in the Settings screen (or the New Game sheet) and are
@@ -7,6 +17,8 @@ import Foundation
 /// changed. Each game takes a snapshot of them when it starts, so changing a
 /// setting never alters a game already in progress.
 struct GameSettings: Codable, Equatable, Sendable {
+    /// Indoor or outdoor scoring (chosen at New Game; remembered).
+    var scoring: ScoringType = .indoor
     /// Full innings (Away bats + Home bats = 1 inning).
     var innings: Int = 2
     /// Length of each half inning, in seconds (30-second steps).
@@ -45,21 +57,11 @@ struct GameSettings: Codable, Equatable, Sendable {
     /// Standard indoor rules (the defaults).
     static let indoor = GameSettings()
 
-    /// Outdoor-style scoring: no points per base, 4 for a home run.
-    static var outdoorVariant: GameSettings {
+    /// Outdoor scoring with the default innings and time.
+    static var outdoor: GameSettings {
         var s = GameSettings()
-        s.pointsPerBase = 0
-        s.homeRunPoints = 4
+        s.scoring = .outdoor
         return s
-    }
-
-    /// Copies only the scoring rules from `other` (keeps time, innings and names).
-    mutating func applyScoring(from other: GameSettings) {
-        pointsPerBase = other.pointsPerBase
-        homeRunPoints = other.homeRunPoints
-        runPoints = other.runPoints
-        outPoints = other.outPoints
-        outAtHomeByCatcherPoints = other.outAtHomeByCatcherPoints
     }
 
     var halvesCount: Int { innings * 2 }
@@ -67,7 +69,7 @@ struct GameSettings: Codable, Equatable, Sendable {
     // MARK: Codable (tolerant of missing keys so older saved data still loads)
 
     enum CodingKeys: String, CodingKey {
-        case innings, halfInningSeconds, pointsPerBase, homeRunPoints, runPoints
+        case scoring, innings, halfInningSeconds, pointsPerBase, homeRunPoints, runPoints
         case outPoints, outAtHomeByCatcherPoints, warningSeconds, awayName, homeName, location
     }
 
@@ -76,6 +78,8 @@ struct GameSettings: Codable, Equatable, Sendable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let d = GameSettings.indoor
+        // Settings and games saved before outdoor scoring existed are indoor.
+        scoring = (try? c.decodeIfPresent(ScoringType.self, forKey: .scoring)) ?? .indoor
         innings = try c.decodeIfPresent(Int.self, forKey: .innings) ?? d.innings
         halfInningSeconds = try c.decodeIfPresent(Int.self, forKey: .halfInningSeconds) ?? d.halfInningSeconds
         pointsPerBase = try c.decodeIfPresent(Int.self, forKey: .pointsPerBase) ?? d.pointsPerBase

@@ -4,21 +4,35 @@ Score keeper and half-inning timer for indoor softball — iPhone, iPad and Appl
 
 ## Scoring
 
-The scoring screen has three big buttons:
+Each game uses one of two scoring types, chosen at New Game (and remembered):
+
+**Indoor**
 
 | Button | Points |
 |---|---|
-| **+1** | +1 (each base reached, run scored, etc.) |
-| **−1** | −1 (each out; tap twice for an out at home by the catcher) |
-| **HR** | Home run off the back wall: +5 by default (outdoor variant +4), set in Settings |
+| **+1** | +1 |
+| **−1** | −1 |
+| **HR** | Home run off the back wall: +5 by default, set in Settings |
+| **OC** | Out by the catcher at home: −2 by default, set in Settings |
 
-Under the buttons are the **Plus**, **Minus** and **Total** tallies for the half being scored. Undo removes the last tap.
+The tallies show **Plus**, **Minus** and **Total** for the half being scored.
+
+**Outdoor** (runs only; the only settings are innings and time per half)
+
+| Button | Runs |
+|---|---|
+| **+1** | 1 |
+| **HR+1** | 2 (home run with 1 runner on) |
+| **HR+2** | 3 |
+| **HR+3** | 4 |
+
+The tally shows the runs for the half. Undo removes the last tap in either type.
 
 * Innings default 2 (Away bats then Home bats = 1 inning); time per half default 5:00 in 30 s steps; warning at 1:00 left.
 * Outs never end a half — only the clock does. When time is up the clock stops at 0:00, turns red and flashes (with haptics and sound) – that half is over, but **+1 / −1 / HR still work until Start Bottom 1 (or End Game) is tapped**.
 * Each half keeps a plus tally and a minus tally; the half's score is their sum and can be negative.
 * Highest total wins, so −5 beats −10. Ties stand – there are no extra innings.
-* Settings (innings, time per half, warning time, HR value) carry forward to every new game until changed. A game in progress keeps the settings it started with.
+* Settings (scoring type, innings, time per half, warning time, and the indoor HR and OC values) carry forward to every new game until changed. A game in progress keeps the settings it started with.
 
 ## Screens
 

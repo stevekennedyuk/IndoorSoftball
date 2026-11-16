@@ -8,6 +8,27 @@ struct SettingsSections: View {
 
     var body: some View {
         Section {
+            #if os(watchOS)
+            Toggle("Outdoor scoring", isOn: Binding(
+                get: { settings.scoring == .outdoor },
+                set: { settings.scoring = $0 ? .outdoor : .indoor }))
+            #else
+            Picker("Scoring", selection: $settings.scoring) {
+                ForEach(ScoringType.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            #endif
+        } header: {
+            Text("Scoring type")
+        } footer: {
+            if !compact {
+                Text(settings.scoring == .indoor
+                     ? "Indoor: +1, −1, HR (home run off the back wall) and OC (out by the catcher at home)."
+                     : "Outdoor: runs only. +1 for a run, and HR+1, HR+2 or HR+3 for a home run with 1, 2 or 3 runners on (2, 3 or 4 runs).")
+            }
+        }
+
+        Section {
             Stepper(value: $settings.innings, in: GameSettings.inningsRange) {
                 row("Innings", "\(settings.innings)")
             }
@@ -27,15 +48,17 @@ struct SettingsSections: View {
             }
         }
 
-        Section {
-            Stepper(value: $settings.homeRunPoints, in: GameSettings.homeRunRange) {
-                row("Home run (HR button)", settings.homeRunPoints.signedString)
-            }
-        } header: {
-            Text("Scoring")
-        } footer: {
-            if !compact {
-                Text("Score with +1 and −1 for each point won or lost, and HR for a home run off the back wall (normally +5 indoors, +4 outdoors).")
+        if settings.scoring == .indoor {
+            Section {
+                Stepper(value: $settings.homeRunPoints, in: GameSettings.homeRunRange) {
+                    row("Home run (HR)", settings.homeRunPoints.signedString)
+                }
+                Stepper(value: $settings.outAtHomeByCatcherPoints, in: GameSettings.outRange) {
+                    row(compact ? "Catcher out (OC)" : "Out by catcher at home (OC)",
+                        settings.outAtHomeByCatcherPoints.signedString)
+                }
+            } header: {
+                Text("Indoor scoring")
             }
         }
     }

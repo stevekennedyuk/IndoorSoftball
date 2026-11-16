@@ -38,16 +38,20 @@ private struct StartView: View {
                     .padding(.top, 40)
                 Text("Indoor Softball")
                     .font(.largeTitle.weight(.heavy))
-                Text("Timed half innings · +1 / −1 / HR scoring · negative scores count")
+                Text("Timed half innings · indoor or outdoor scoring")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
 
                 VStack(alignment: .leading, spacing: 10) {
                     let s = store.settings
+                    summaryRow("Scoring", s.scoring.title)
                     summaryRow("Innings", "\(s.innings)")
                     summaryRow("Time per half", Theme.duration(s.halfInningSeconds))
-                    summaryRow("Home run", s.homeRunPoints.signedString)
+                    if s.scoring == .indoor {
+                        summaryRow("Home run (HR)", s.homeRunPoints.signedString)
+                        summaryRow("Out by catcher at home (OC)", s.outAtHomeByCatcherPoints.signedString)
+                    }
                 }
                 .padding()
                 .background(RoundedRectangle(cornerRadius: 16).fill(Theme.card))
