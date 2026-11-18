@@ -14,3 +14,12 @@ Android/captures/
 *.keystore
 *.jks
 Android/.kotlin/
+
+# Android build output and signed APKs/bundles (share these via GitHub Releases, not git)
+Android/app/release/
+Android/wear/release/
+*.apk
+*.aab
+*.ap_
+*.keystore.properties
+keystore.properties
